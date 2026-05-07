@@ -1,13 +1,14 @@
-#pragma once
+#ifndef MEMORY_ALLOCATOR_HPP
+#define MEMORY_ALLOCATOR_HPP
 
 #include "../lib/hw.h"
 
 struct Fragment {
     size_t numOfBlocks;
-    Fragment* next;
-    Fragment* prev;
-    bool free;
-} typedef Fragment;
+    struct Fragment* next;
+    struct Fragment* prev;
+    uint8 free;
+};
 
 class MemoryAllocator {
 public:
@@ -24,9 +25,8 @@ private:
 
     MemoryAllocator();
     Fragment* head;
-    bool mergePrev(Fragment* fragment);
-    bool mergeNext(Fragment* fragment);
+    void mergePrev(Fragment* fragment);
+    void mergeNext(Fragment* fragment);
 };
 
-
-
+#endif

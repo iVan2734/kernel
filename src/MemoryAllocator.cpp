@@ -1,5 +1,5 @@
 
-#include  "../h/MemoryAllocator.h"
+#include  "../h/MemoryAllocator.hpp"
 #include "../lib/console.h"
 
 
@@ -9,39 +9,39 @@ MemoryAllocator &MemoryAllocator::getInstance() {
 }
 
 MemoryAllocator::MemoryAllocator() {
-    void* startAddress=(void*)((size_t)HEAP_START_ADDR+MEM_BLOCK_SIZE-1)/MEM_BLOCK_SIZE*MEM_BLOCK_SIZE;
-    size_t num=((size_t)HEAP_END_ADDR-(size_t)startAddress)/MEM_BLOCK_SIZE;
-    head=(*FreeFragment)startAddress;
+    void* startAddress=(void*)(((size_t)HEAP_START_ADDR+MEM_BLOCK_SIZE-1) / MEM_BLOCK_SIZE * MEM_BLOCK_SIZE);
+    size_t num=((size_t)HEAP_END_ADDR-(size_t)startAddress) / MEM_BLOCK_SIZE;
+    head=(Fragment*)startAddress;
     head->numOfBlocks=num;
     head->next=nullptr;
     head->prev=nullptr;
-    head->free=true;
+    head->free=1;
 }
 
-void *MemoryAllocator::memAlloc() {
-    return MemoryAllocator::getInstance().firstFitAlloc();
+void* MemoryAllocator::memAlloc(size_t size) {
+    return MemoryAllocator::getInstance().firstFitAlloc(size);
     //return MemoryAllocator::getInstance().bestFitAlloc();
 }
 
 
 
-void *MemoryAllocator::firstFitAlloc(size_t size) {
+void* MemoryAllocator::firstFitAlloc(size_t size) {
     if (size<=0) {
         __putc('!');
         return nullptr;
     }
     //1 more block for fragment data(size and pointer to the next fragement)
-    size_t numOfBlockNeeded=((size+sizeof(Fragment))%MEM_BLOCK_SIZE==0) ? (size+sizeof(Fragment))/MEM_BLOCK_SIZE+MEM_BLOCK_SIZE : (size+sizeof(Fragment))/MEM_BLOCK_SIZE+MEM_BLOCK_SIZE;
+    size_t numOfBlocksNeeded=((size+sizeof(Fragment))%MEM_BLOCK_SIZE==0) ? (size+sizeof(Fragment))/MEM_BLOCK_SIZE : (size+sizeof(Fragment))/MEM_BLOCK_SIZE+1;
 
     for (Fragment *fragment=head; fragment; fragment=fragment->next) {
         if (fragment->free) {
-            if (fragment->numOfBlocks==numOfBlockNeeded) {
-                fragment->free=false;
+            if (fragment->numOfBlocks==numOfBlocksNeeded || fragment->numOfBlocks==numOfBlocksNeeded+1) {
+                fragment->free=0;
                 return (void*)(fragment+sizeof(fragment));
             }
             else if (fragment->numOfBlocks>numOfBlockNeeded) {
-                fragment->free=false;
-                size_t freeSize=fragment->numOfBlocks-numOfBlockNeeded-sizeof(Fragment);
+                fragment->free=0;
+                size_t freeSize=fragment->numOfBlocks-numOfBlocksNeeded-sizeof(Fragment);
                 Fragment* tmp=fragment->next;
                 fragment->next=fragment+sizeof(fragment)+fragment->numOfBlocks*MEM_BLOCK_SIZE;
                 fragment->next->numOfBlocks=freeSize;
@@ -58,50 +58,38 @@ void *MemoryAllocator::firstFitAlloc(size_t size) {
     __putc('C');
     __putc('E');
     __putc('\n');
+    return nullptr;
 
 }
 
-void *MemoryAllocator::bestFitAlloc() {
-
-}
-
-void MemoryAllocator::free(void *fragment) {
-    bool freed=false;
+int MemoryAllocator::free(void *fragment) {
     for (Fragment* curr=head; curr; curr=curr->next) {
-        if (curr+MEM_BLOCK_SIZE==fragment) {
+        if (curr+sizeof(Fragment)==fragment) {
             if (curr->free) {
                 __putc('!');
             }
             else {
-                curr->free=true;
-                freed=true;
+                curr->free=1;
+                mergeNext(curr);
+                mergeNext(curr);
+                return 0;
             }
         }
     }
-    if (!freed) {
-        __putc('!');
-        return;
-    }
-    mergeNext(curr);
-    mergeNext(curr)
+    // is should return the code of the error but I currenntly dont know what is the code and there might be many more undefined behaviors
+    return -1;
 }
 
-bool MemoryAllocator::mergePrev(FreeFragement *fragment) {
+void MemoryAllocator::mergePrev(Fragment *fragment) {
     if (fragment->prev->free) {
         fragment->prev->numOfBlocks+=fragment->numOfBlocks+MEM_BLOCK_SIZE;
         fragment->prev->next=fragment->next;
-        return true;
     }
-    return false;
 }
 
-bool MemoryAllocator::mergeNext(FreeFragement *fragment) {
+void MemoryAllocator::mergeNext(Fragment *fragment) {
     if (fragment->next->free) {
         fragment->numOfBlocks+=fragment->next->numOfBlocks+MEM_BLOCK_SIZE;
         fragment->next=fragment->next->next;
-        return true;
     }
-}
-void *MemoryAllocator::compact() {
-
 }
