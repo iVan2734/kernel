@@ -63,23 +63,16 @@ void* MemoryAllocator::firstFitAlloc(size_t size) {
             }
         }
     }
-    __putc('N');
-    __putc('O');
-    __putc('S');
-    __putc('P');
-    __putc('A');
-    __putc('C');
-    __putc('E');
-    __putc('\n');
+    __putc('F');
     return nullptr;
-
 }
 
 int MemoryAllocator::free(void *fragment) {
     for (Fragment* curr=head; curr; curr=curr->next) {
-        if ((char*)curr+sizeof(Fragment)==fragment) {
+        if ((size_t)curr+sizeof(Fragment)==(size_t)fragment) {
             if (curr->free) {
                 __putc('!');
+                return -1;
             }
             else {
                 curr->free=1;
