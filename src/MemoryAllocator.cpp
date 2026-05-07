@@ -30,23 +30,23 @@ void* MemoryAllocator::firstFitAlloc(size_t size) {
         __putc('!');
         return nullptr;
     }
-    //1 more block for fragment data(size and pointer to the next fragement)
+    //sizeof(fragment) extra space to store fragment data
     size_t numOfBlocksNeeded=((size+sizeof(Fragment))%MEM_BLOCK_SIZE==0) ? (size+sizeof(Fragment))/MEM_BLOCK_SIZE : (size+sizeof(Fragment))/MEM_BLOCK_SIZE+1;
 
     for (Fragment *fragment=head; fragment; fragment=fragment->next) {
         if (fragment->free) {
             if (fragment->numOfBlocks==numOfBlocksNeeded || fragment->numOfBlocks==numOfBlocksNeeded+1) {
                 fragment->free=0;
-                return (void*)(fragment+sizeof(fragment));
+                return (void*)((size_t)fragment+sizeof(Fragment));
             }
-            else if (fragment->numOfBlocks>numOfBlockNeeded) {
+            else if (fragment->numOfBlocks>numOfBlocksNeeded) {
                 fragment->free=0;
-                size_t freeSize=fragment->numOfBlocks-numOfBlocksNeeded-sizeof(Fragment);
+                size_t freeSize=fragment->numOfBlocks-numOfBlocksNeeded;
                 Fragment* tmp=fragment->next;
-                fragment->next=fragment+sizeof(fragment)+fragment->numOfBlocks*MEM_BLOCK_SIZE;
+                fragment->next=fragment+sizeof(Fragment)+fragment->numOfBlocks*MEM_BLOCK_SIZE;
                 fragment->next->numOfBlocks=freeSize;
                 fragment->next->next=tmp;
-                return (void*)(fragment+sizeof(Fragment));
+                return (void*)((size_t)fragment+sizeof(Fragment));
             }
         }
     }
@@ -64,19 +64,19 @@ void* MemoryAllocator::firstFitAlloc(size_t size) {
 
 int MemoryAllocator::free(void *fragment) {
     for (Fragment* curr=head; curr; curr=curr->next) {
-        if (curr+sizeof(Fragment)==fragment) {
+        if ((char*)curr+sizeof(Fragment)==fragment) {
             if (curr->free) {
                 __putc('!');
             }
             else {
                 curr->free=1;
                 mergeNext(curr);
-                mergeNext(curr);
+                mergePrev(curr);
                 return 0;
             }
         }
     }
-    // is should return the code of the error but I currenntly dont know what is the code and there might be many more undefined behaviors
+    // is should return the code of the error but I currently dont know what is the code and there might be many more undefined behaviors
     return -1;
 }
 
