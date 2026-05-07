@@ -10,8 +10,8 @@ MemoryAllocator &MemoryAllocator::getInstance() {
 
 MemoryAllocator::MemoryAllocator() {
     void* startAddress=(void*)(((size_t)HEAP_START_ADDR+MEM_BLOCK_SIZE-1) / MEM_BLOCK_SIZE * MEM_BLOCK_SIZE);
-    size_t num=((size_t)HEAP_END_ADDR-(size_t)startAddress) / MEM_BLOCK_SIZE;
     head=(Fragment*)startAddress;
+    size_t num=((size_t)HEAP_END_ADDR-(size_t)startAddress) / MEM_BLOCK_SIZE;
     head->numOfBlocks=num;
     head->next=nullptr;
     head->prev=nullptr;
@@ -39,13 +39,26 @@ void* MemoryAllocator::firstFitAlloc(size_t size) {
                 fragment->free=0;
                 return (void*)((size_t)fragment+sizeof(Fragment));
             }
-            else if (fragment->numOfBlocks>numOfBlocksNeeded) {
-                fragment->free=0;
+            else if (fragment->numOfBlocks>numOfBlocksNeeded+1) {
+                //how much memory was left int the fragment
                 size_t freeSize=fragment->numOfBlocks-numOfBlocksNeeded;
+
+                //allocated block
+                fragment->free=0;
+                fragment->numOfBlocks=numOfBlocksNeeded;
                 Fragment* tmp=fragment->next;
-                fragment->next=fragment+sizeof(Fragment)+fragment->numOfBlocks*MEM_BLOCK_SIZE;
+
+                //sad je okej
+
+                //new free fragment
+                fragment->next=(Fragment*)((size_t)fragment+numOfBlocksNeeded*MEM_BLOCK_SIZE);
+                fragment->next->free=1;
+                fragment->next->prev=fragment;
                 fragment->next->numOfBlocks=freeSize;
                 fragment->next->next=tmp;
+                if(tmp){
+                    fragment->next->next->prev=fragment->next;
+                }
                 return (void*)((size_t)fragment+sizeof(Fragment));
             }
         }
@@ -81,15 +94,21 @@ int MemoryAllocator::free(void *fragment) {
 }
 
 void MemoryAllocator::mergePrev(Fragment *fragment) {
-    if (fragment->prev->free) {
-        fragment->prev->numOfBlocks+=fragment->numOfBlocks+MEM_BLOCK_SIZE;
+    if (fragment->prev && fragment->prev->free) {
+        fragment->prev->numOfBlocks+=fragment->numOfBlocks;
         fragment->prev->next=fragment->next;
+        if(fragment->prev->next){
+            fragment->prev->next->prev=fragment->prev;
+        }
     }
 }
 
 void MemoryAllocator::mergeNext(Fragment *fragment) {
-    if (fragment->next->free) {
-        fragment->numOfBlocks+=fragment->next->numOfBlocks+MEM_BLOCK_SIZE;
+    if (fragment->next && fragment->next->free) {
+        fragment->numOfBlocks+=fragment->next->numOfBlocks;
         fragment->next=fragment->next->next;
+        if(fragment->next){
+            fragment->next->prev=fragment;
+        }
     }
 }
