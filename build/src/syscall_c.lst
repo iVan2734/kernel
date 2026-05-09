@@ -1,0 +1,243 @@
+GAS LISTING /tmp/ccbQ1MVU.s 			page 1
+
+
+   1              		.file	"syscall_c.cpp"
+   2              		.option nopic
+   3              		.option norelax
+   4              		.attribute arch, "rv64i2p0_m2p0_a2p0"
+   5              		.attribute unaligned_access, 0
+   6              		.attribute stack_align, 16
+   7              		.text
+   8              	.Ltext0:
+   9              		.align	2
+  10              		.globl	_Z9mem_allocm
+  12              	_Z9mem_allocm:
+  13              	.LFB0:
+  14              		.file 1 "src/syscall_c.cpp"
+   1:src/syscall_c.cpp **** #include "../h/syscall_c.hpp"
+   2:src/syscall_c.cpp **** #include "../lib/hw.h"
+   3:src/syscall_c.cpp **** 
+   4:src/syscall_c.cpp **** extern "C" void interrupt();
+   5:src/syscall_c.cpp **** 
+   6:src/syscall_c.cpp **** void* mem_alloc(size_t size) {
+  15              		.loc 1 6 30
+  16              		.cfi_startproc
+  17              	.LVL0:
+  18 0000 130101FF 		addi	sp,sp,-16
+  19              		.cfi_def_cfa_offset 16
+  20 0004 23348100 		sd	s0,8(sp)
+  21              		.cfi_offset 8, -8
+  22 0008 13040101 		addi	s0,sp,16
+  23              		.cfi_def_cfa 8, 0
+   7:src/syscall_c.cpp ****     //0x01 -> a0, not sure about the syntax
+   8:src/syscall_c.cpp ****     //size -> a1, not sure about the syntax
+   9:src/syscall_c.cpp ****     //uint64 code=0x01;
+  10:src/syscall_c.cpp ****     //__asm__ volatile("mv a0, %0" : : "r" (code) );
+  11:src/syscall_c.cpp ****     //__asm__ volatile("mv a1, %0" : : "r" (size) );
+  12:src/syscall_c.cpp ****     //need to put interrupt address to stvec
+  13:src/syscall_c.cpp ****     //ecall
+  14:src/syscall_c.cpp ****     __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt));
+  24              		.loc 1 14 5
+  25              		.loc 1 14 60 is_stmt 0
+  26 000c 97070000 		lla	a5,interrupt
+  26      93870700 
+  27              	 #APP
+  28              	# 14 "src/syscall_c.cpp" 1
+  15              	    __asm__ volatile("ecall");
+  29              		csrw stvec, a5
+  30              	# 0 "" 2
+  31              		.loc 1 15 5 is_stmt 1
+  32              		.loc 1 15 30 is_stmt 0
+  33              	# 15 "src/syscall_c.cpp" 1
+  16              	    void* returnValue;
+  34              		ecall
+  35              	# 0 "" 2
+  36              		.loc 1 16 5 is_stmt 1
+  17:src/syscall_c.cpp ****     __asm__ volatile("mv %0, a1" : "=r" (returnValue));
+  37              		.loc 1 17 5
+  38              		.loc 1 17 55 is_stmt 0
+  39              	# 17 "src/syscall_c.cpp" 1
+  18              	    return returnValue;
+GAS LISTING /tmp/ccbQ1MVU.s 			page 2
+
+
+  40              		mv a0, a1
+  41              	# 0 "" 2
+  42              	.LVL1:
+  43              		.loc 1 18 5 is_stmt 1
+  19:src/syscall_c.cpp **** }
+  44              		.loc 1 19 1 is_stmt 0
+  45              	 #NO_APP
+  46 0020 03348100 		ld	s0,8(sp)
+  47              		.cfi_restore 8
+  48              		.cfi_def_cfa 2, 16
+  49 0024 13010101 		addi	sp,sp,16
+  50              		.cfi_def_cfa_offset 0
+  51 0028 67800000 		jr	ra
+  52              		.cfi_endproc
+  53              	.LFE0:
+  55              		.align	2
+  56              		.globl	_Z8mem_freePv
+  58              	_Z8mem_freePv:
+  59              	.LFB1:
+  20:src/syscall_c.cpp **** 
+  21:src/syscall_c.cpp **** int mem_free(void* addr) {
+  60              		.loc 1 21 26 is_stmt 1
+  61              		.cfi_startproc
+  62              	.LVL2:
+  63 002c 130101FF 		addi	sp,sp,-16
+  64              		.cfi_def_cfa_offset 16
+  65 0030 23348100 		sd	s0,8(sp)
+  66              		.cfi_offset 8, -8
+  67 0034 13040101 		addi	s0,sp,16
+  68              		.cfi_def_cfa 8, 0
+  22:src/syscall_c.cpp **** 
+  23:src/syscall_c.cpp ****     //0x02 -> a0, not sure about the syntax
+  24:src/syscall_c.cpp ****     //addr -> a1, not sure about the syntax
+  25:src/syscall_c.cpp ****     // uint64 code=0x02;
+  26:src/syscall_c.cpp ****     //__asm__ volatile("mv a0, %0" : : "r" (code) );
+  27:src/syscall_c.cpp ****     //__asm__ volatile("mv a1, %0 " : : "r" (addr));
+  28:src/syscall_c.cpp **** 
+  29:src/syscall_c.cpp ****     //need to put interrupt address to stvec
+  30:src/syscall_c.cpp ****     // ecall
+  31:src/syscall_c.cpp **** 
+  32:src/syscall_c.cpp ****     __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt) );
+  69              		.loc 1 32 5
+  70              		.loc 1 32 61 is_stmt 0
+  71 0038 97070000 		lla	a5,interrupt
+  71      93870700 
+  72              	 #APP
+  73              	# 32 "src/syscall_c.cpp" 1
+  33              	    __asm__ volatile("ecall");
+  74              		csrw stvec, a5
+  75              	# 0 "" 2
+  76              		.loc 1 33 5 is_stmt 1
+  77              		.loc 1 33 30 is_stmt 0
+  78              	# 33 "src/syscall_c.cpp" 1
+  34              	    uint64 returnValue;
+  79              		ecall
+  80              	# 0 "" 2
+  81              		.loc 1 34 5 is_stmt 1
+GAS LISTING /tmp/ccbQ1MVU.s 			page 3
+
+
+  35:src/syscall_c.cpp ****     __asm__ volatile("mv %0, a1" : "=r" (returnValue));
+  82              		.loc 1 35 5
+  83              		.loc 1 35 55 is_stmt 0
+  84              	# 35 "src/syscall_c.cpp" 1
+  36              	    return returnValue;
+  85              		mv a0, a1
+  86              	# 0 "" 2
+  87              	.LVL3:
+  88              		.loc 1 36 5 is_stmt 1
+  37:src/syscall_c.cpp **** }...
+  89              		.loc 1 37 1 is_stmt 0
+  90              	 #NO_APP
+  91 004c 1B050500 		sext.w	a0,a0
+  92              	.LVL4:
+  93 0050 03348100 		ld	s0,8(sp)
+  94              		.cfi_restore 8
+  95              		.cfi_def_cfa 2, 16
+  96 0054 13010101 		addi	sp,sp,16
+  97              		.cfi_def_cfa_offset 0
+  98 0058 67800000 		jr	ra
+  99              		.cfi_endproc
+ 100              	.LFE1:
+ 102              	.Letext0:
+ 103              		.file 2 "src/../h/../lib/hw.h"
+GAS LISTING /tmp/ccbQ1MVU.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 syscall_c.cpp
+     /tmp/ccbQ1MVU.s:12     .text:0000000000000000 _Z9mem_allocm
+     /tmp/ccbQ1MVU.s:16     .text:0000000000000000 .L0 
+     /tmp/ccbQ1MVU.s:18     .text:0000000000000000 .L0 
+     /tmp/ccbQ1MVU.s:19     .text:0000000000000004 .L0 
+     /tmp/ccbQ1MVU.s:21     .text:0000000000000008 .L0 
+     /tmp/ccbQ1MVU.s:23     .text:000000000000000c .L0 
+     /tmp/ccbQ1MVU.s:25     .text:000000000000000c .L0 
+     /tmp/ccbQ1MVU.s:26     .text:000000000000000c .L0 
+     /tmp/ccbQ1MVU.s:32     .text:0000000000000018 .L0 
+   src/syscall_c.cpp:15     .text:0000000000000018 .L0 
+     /tmp/ccbQ1MVU.s:37     .text:000000000000001c .L0 
+     /tmp/ccbQ1MVU.s:38     .text:000000000000001c .L0 
+   src/syscall_c.cpp:17     .text:000000000000001c .L0 
+     /tmp/ccbQ1MVU.s:44     .text:0000000000000020 .L0 
+     /tmp/ccbQ1MVU.s:46     .text:0000000000000020 .L0 
+     /tmp/ccbQ1MVU.s:47     .text:0000000000000024 .L0 
+     /tmp/ccbQ1MVU.s:48     .text:0000000000000024 .L0 
+     /tmp/ccbQ1MVU.s:50     .text:0000000000000028 .L0 
+     /tmp/ccbQ1MVU.s:52     .text:000000000000002c .L0 
+     /tmp/ccbQ1MVU.s:58     .text:000000000000002c _Z8mem_freePv
+     /tmp/ccbQ1MVU.s:61     .text:000000000000002c .L0 
+     /tmp/ccbQ1MVU.s:63     .text:000000000000002c .L0 
+     /tmp/ccbQ1MVU.s:64     .text:0000000000000030 .L0 
+     /tmp/ccbQ1MVU.s:66     .text:0000000000000034 .L0 
+     /tmp/ccbQ1MVU.s:68     .text:0000000000000038 .L0 
+     /tmp/ccbQ1MVU.s:70     .text:0000000000000038 .L0 
+     /tmp/ccbQ1MVU.s:71     .text:0000000000000038 .L0 
+     /tmp/ccbQ1MVU.s:77     .text:0000000000000044 .L0 
+   src/syscall_c.cpp:33     .text:0000000000000044 .L0 
+     /tmp/ccbQ1MVU.s:82     .text:0000000000000048 .L0 
+     /tmp/ccbQ1MVU.s:83     .text:0000000000000048 .L0 
+   src/syscall_c.cpp:35     .text:0000000000000048 .L0 
+     /tmp/ccbQ1MVU.s:89     .text:000000000000004c .L0 
+     /tmp/ccbQ1MVU.s:91     .text:000000000000004c .L0 
+     /tmp/ccbQ1MVU.s:94     .text:0000000000000054 .L0 
+     /tmp/ccbQ1MVU.s:95     .text:0000000000000054 .L0 
+     /tmp/ccbQ1MVU.s:97     .text:0000000000000058 .L0 
+     /tmp/ccbQ1MVU.s:99     .text:000000000000005c .L0 
+     /tmp/ccbQ1MVU.s:104    .text:000000000000005c .L0 
+     /tmp/ccbQ1MVU.s:26     .text:000000000000000c .L0 
+     /tmp/ccbQ1MVU.s:71     .text:0000000000000038 .L0 
+     /tmp/ccbQ1MVU.s:288    .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+     /tmp/ccbQ1MVU.s:598    .debug_str:000000000000004d .LASF20
+     /tmp/ccbQ1MVU.s:614    .debug_str:0000000000000176 .LASF21
+     /tmp/ccbQ1MVU.s:616    .debug_str:0000000000000188 .LASF22
+     /tmp/ccbQ1MVU.s:8      .text:0000000000000000 .Ltext0
+     /tmp/ccbQ1MVU.s:102    .text:000000000000005c .Letext0
+     /tmp/ccbQ1MVU.s:584    .debug_line:0000000000000000 .Ldebug_line0
+     /tmp/ccbQ1MVU.s:588    .debug_str:000000000000000c .LASF0
+     /tmp/ccbQ1MVU.s:626    .debug_str:00000000000001dd .LASF1
+     /tmp/ccbQ1MVU.s:610    .debug_str:0000000000000152 .LASF2
+     /tmp/ccbQ1MVU.s:604    .debug_str:0000000000000136 .LASF4
+     /tmp/ccbQ1MVU.s:600    .debug_str:0000000000000111 .LASF3
+     /tmp/ccbQ1MVU.s:594    .debug_str:0000000000000036 .LASF5
+     /tmp/ccbQ1MVU.s:602    .debug_str:0000000000000123 .LASF6
+GAS LISTING /tmp/ccbQ1MVU.s 			page 5
+
+
+     /tmp/ccbQ1MVU.s:624    .debug_str:00000000000001ca .LASF7
+     /tmp/ccbQ1MVU.s:634    .debug_str:0000000000000214 .LASF8
+     /tmp/ccbQ1MVU.s:590    .debug_str:0000000000000019 .LASF9
+     /tmp/ccbQ1MVU.s:592    .debug_str:0000000000000027 .LASF10
+     /tmp/ccbQ1MVU.s:630    .debug_str:0000000000000200 .LASF11
+     /tmp/ccbQ1MVU.s:596    .debug_str:000000000000003d .LASF12
+     /tmp/ccbQ1MVU.s:628    .debug_str:00000000000001f0 .LASF13
+     /tmp/ccbQ1MVU.s:608    .debug_str:0000000000000146 .LASF14
+     /tmp/ccbQ1MVU.s:620    .debug_str:00000000000001a6 .LASF15
+     /tmp/ccbQ1MVU.s:612    .debug_str:0000000000000160 .LASF16
+     /tmp/ccbQ1MVU.s:606    .debug_str:000000000000013d .LASF23
+     /tmp/ccbQ1MVU.s:618    .debug_str:0000000000000198 .LASF24
+     /tmp/ccbQ1MVU.s:59     .text:000000000000002c .LFB1
+     /tmp/ccbQ1MVU.s:100    .text:000000000000005c .LFE1
+     /tmp/ccbQ1MVU.s:638    .debug_str:000000000000022e .LASF18
+     /tmp/ccbQ1MVU.s:536    .debug_loc:0000000000000000 .LLST1
+     /tmp/ccbQ1MVU.s:586    .debug_str:0000000000000000 .LASF17
+     /tmp/ccbQ1MVU.s:550    .debug_loc:0000000000000039 .LLST2
+     /tmp/ccbQ1MVU.s:636    .debug_str:0000000000000224 .LASF25
+     /tmp/ccbQ1MVU.s:622    .debug_str:00000000000001bc .LASF26
+     /tmp/ccbQ1MVU.s:13     .text:0000000000000000 .LFB0
+     /tmp/ccbQ1MVU.s:53     .text:000000000000002c .LFE0
+     /tmp/ccbQ1MVU.s:632    .debug_str:000000000000020f .LASF19
+     /tmp/ccbQ1MVU.s:557    .debug_loc:000000000000005c .LLST0
+     /tmp/ccbQ1MVU.s:62     .text:000000000000002c .LVL2
+     /tmp/ccbQ1MVU.s:87     .text:000000000000004c .LVL3
+     /tmp/ccbQ1MVU.s:92     .text:0000000000000050 .LVL4
+     /tmp/ccbQ1MVU.s:17     .text:0000000000000000 .LVL0
+     /tmp/ccbQ1MVU.s:42     .text:0000000000000020 .LVL1
+     /tmp/ccbQ1MVU.s:105    .debug_info:0000000000000000 .Ldebug_info0
+
+UNDEFINED SYMBOLS
+interrupt

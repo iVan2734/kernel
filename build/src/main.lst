@@ -1,0 +1,337 @@
+GAS LISTING /tmp/ccNt4vIu.s 			page 1
+
+
+   1              		.file	"main.cpp"
+   2              		.option nopic
+   3              		.option norelax
+   4              		.attribute arch, "rv64i2p0_m2p0_a2p0"
+   5              		.attribute unaligned_access, 0
+   6              		.attribute stack_align, 16
+   7              		.text
+   8              	.Ltext0:
+   9              		.align	2
+  10              		.globl	main
+  12              	main:
+  13              	.LFB0:
+  14              		.file 1 "src/main.cpp"
+   1:src/main.cpp  **** #include "../lib/hw.h"
+   2:src/main.cpp  **** #include "../lib/console.h"
+   3:src/main.cpp  **** #include "../h/syscall_c.hpp"
+   4:src/main.cpp  **** 
+   5:src/main.cpp  **** /*
+   6:src/main.cpp  **** void memoryAllocatorTest() {
+   7:src/main.cpp  ****     __putc('S');
+   8:src/main.cpp  ****     void* a=MemoryAllocator::getInstance().memAlloc(64);
+   9:src/main.cpp  ****     if(a) {
+  10:src/main.cpp  ****         __putc('1');
+  11:src/main.cpp  ****     }
+  12:src/main.cpp  ****     void* b=MemoryAllocator::getInstance().memAlloc(64);
+  13:src/main.cpp  ****     if(b) {
+  14:src/main.cpp  ****         __putc('2');
+  15:src/main.cpp  ****     }
+  16:src/main.cpp  ****     MemoryAllocator::getInstance().free(a);
+  17:src/main.cpp  ****     __putc('F');
+  18:src/main.cpp  ****     void* p=MemoryAllocator::getInstance().memAlloc(64);
+  19:src/main.cpp  ****     if (p==a) {
+  20:src/main.cpp  ****         __putc('M');
+  21:src/main.cpp  ****     }
+  22:src/main.cpp  ****     __putc('E');
+  23:src/main.cpp  ****     MemoryAllocator::getInstance().free(b);
+  24:src/main.cpp  ****     MemoryAllocator::getInstance().free(p);
+  25:src/main.cpp  ****     while (1);
+  26:src/main.cpp  **** }
+  27:src/main.cpp  **** */
+  28:src/main.cpp  **** 
+  29:src/main.cpp  **** void main() {
+  15              		.loc 1 29 13
+  16              		.cfi_startproc
+  17 0000 130101FD 		addi	sp,sp,-48
+  18              		.cfi_def_cfa_offset 48
+  19 0004 23341102 		sd	ra,40(sp)
+  20 0008 23308102 		sd	s0,32(sp)
+  21 000c 233C9100 		sd	s1,24(sp)
+  22 0010 23382101 		sd	s2,16(sp)
+  23 0014 23343101 		sd	s3,8(sp)
+  24              		.cfi_offset 1, -8
+  25              		.cfi_offset 8, -16
+  26              		.cfi_offset 9, -24
+  27              		.cfi_offset 18, -32
+  28              		.cfi_offset 19, -40
+  29 0018 13040103 		addi	s0,sp,48
+GAS LISTING /tmp/ccNt4vIu.s 			page 2
+
+
+  30              		.cfi_def_cfa 8, 0
+  30:src/main.cpp  **** 	 __putc('S');
+  31              		.loc 1 30 3
+  32              		.loc 1 30 9 is_stmt 0
+  33 001c 13053005 		li	a0,83
+  34 0020 97000000 		call	__putc
+  34      E7800000 
+  35              	.LVL0:
+  31:src/main.cpp  ****     void* a=mem_alloc(64);
+  36              		.loc 1 31 5 is_stmt 1
+  37              		.loc 1 31 22 is_stmt 0
+  38 0028 13050004 		li	a0,64
+  39 002c 97000000 		call	_Z9mem_allocm
+  39      E7800000 
+  40              	.LVL1:
+  41 0034 93040500 		mv	s1,a0
+  42              	.LVL2:
+  32:src/main.cpp  ****     if(a) {
+  43              		.loc 1 32 5 is_stmt 1
+  44 0038 63080500 		beqz	a0,.L2
+  33:src/main.cpp  ****         __putc('1');
+  45              		.loc 1 33 9
+  46              		.loc 1 33 15 is_stmt 0
+  47 003c 13051003 		li	a0,49
+  48 0040 97000000 		call	__putc
+  48      E7800000 
+  49              	.LVL3:
+  50              	.L2:
+  34:src/main.cpp  ****     }
+  35:src/main.cpp  ****     void* b=mem_alloc(64);
+  51              		.loc 1 35 5 is_stmt 1
+  52              		.loc 1 35 22 is_stmt 0
+  53 0048 13050004 		li	a0,64
+  54 004c 97000000 		call	_Z9mem_allocm
+  54      E7800000 
+  55              	.LVL4:
+  56 0054 93090500 		mv	s3,a0
+  57              	.LVL5:
+  36:src/main.cpp  ****     if(b) {
+  58              		.loc 1 36 5 is_stmt 1
+  59 0058 63080500 		beqz	a0,.L3
+  37:src/main.cpp  ****         __putc('2');
+  60              		.loc 1 37 9
+  61              		.loc 1 37 15 is_stmt 0
+  62 005c 13052003 		li	a0,50
+  63              	.LVL6:
+  64 0060 97000000 		call	__putc
+  64      E7800000 
+  65              	.LVL7:
+  66              	.L3:
+  38:src/main.cpp  ****     }
+  39:src/main.cpp  ****     mem_free(a);
+  67              		.loc 1 39 5 is_stmt 1
+  68              		.loc 1 39 13 is_stmt 0
+  69 0068 13850400 		mv	a0,s1
+  70 006c 97000000 		call	_Z8mem_freePv
+  70      E7800000 
+GAS LISTING /tmp/ccNt4vIu.s 			page 3
+
+
+  71              	.LVL8:
+  40:src/main.cpp  ****     __putc('F');
+  72              		.loc 1 40 5 is_stmt 1
+  73              		.loc 1 40 11 is_stmt 0
+  74 0074 13056004 		li	a0,70
+  75 0078 97000000 		call	__putc
+  75      E7800000 
+  76              	.LVL9:
+  41:src/main.cpp  ****     void* p=mem_alloc(64);
+  77              		.loc 1 41 5 is_stmt 1
+  78              		.loc 1 41 22 is_stmt 0
+  79 0080 13050004 		li	a0,64
+  80 0084 97000000 		call	_Z9mem_allocm
+  80      E7800000 
+  81              	.LVL10:
+  82 008c 13090500 		mv	s2,a0
+  83              	.LVL11:
+  42:src/main.cpp  ****     if (p==a) {
+  84              		.loc 1 42 5 is_stmt 1
+  85 0090 6382A404 		beq	s1,a0,.L6
+  86              	.LVL12:
+  87              	.L4:
+  43:src/main.cpp  ****         __putc('M');
+  44:src/main.cpp  ****     }
+  45:src/main.cpp  ****     __putc('E');
+  88              		.loc 1 45 5
+  89              		.loc 1 45 11 is_stmt 0
+  90 0094 13055004 		li	a0,69
+  91 0098 97000000 		call	__putc
+  91      E7800000 
+  92              	.LVL13:
+  46:src/main.cpp  **** 	mem_free(b);
+  93              		.loc 1 46 2 is_stmt 1
+  94              		.loc 1 46 10 is_stmt 0
+  95 00a0 13850900 		mv	a0,s3
+  96 00a4 97000000 		call	_Z8mem_freePv
+  96      E7800000 
+  97              	.LVL14:
+  47:src/main.cpp  ****     mem_free(p);
+  98              		.loc 1 47 5 is_stmt 1
+  99              		.loc 1 47 13 is_stmt 0
+ 100 00ac 13050900 		mv	a0,s2
+ 101 00b0 97000000 		call	_Z8mem_freePv
+ 101      E7800000 
+ 102              	.LVL15:
+  48:src/main.cpp  **** }...
+ 103              		.loc 1 48 1
+ 104 00b8 83308102 		ld	ra,40(sp)
+ 105              		.cfi_remember_state
+ 106              		.cfi_restore 1
+ 107 00bc 03340102 		ld	s0,32(sp)
+ 108              		.cfi_restore 8
+ 109              		.cfi_def_cfa 2, 48
+ 110 00c0 83348101 		ld	s1,24(sp)
+ 111              		.cfi_restore 9
+ 112              	.LVL16:
+ 113 00c4 03390101 		ld	s2,16(sp)
+GAS LISTING /tmp/ccNt4vIu.s 			page 4
+
+
+ 114              		.cfi_restore 18
+ 115              	.LVL17:
+ 116 00c8 83398100 		ld	s3,8(sp)
+ 117              		.cfi_restore 19
+ 118              	.LVL18:
+ 119 00cc 13010103 		addi	sp,sp,48
+ 120              		.cfi_def_cfa_offset 0
+ 121 00d0 67800000 		jr	ra
+ 122              	.LVL19:
+ 123              	.L6:
+ 124              		.cfi_restore_state
+  43:src/main.cpp  ****         __putc('M');
+ 125              		.loc 1 43 9 is_stmt 1
+  43:src/main.cpp  ****         __putc('M');
+ 126              		.loc 1 43 15 is_stmt 0
+ 127 00d4 1305D004 		li	a0,77
+ 128              	.LVL20:
+ 129 00d8 97000000 		call	__putc
+ 129      E7800000 
+ 130              	.LVL21:
+ 131 00e0 6FF05FFB 		j	.L4
+ 132              		.cfi_endproc
+ 133              	.LFE0:
+ 135              	.Letext0:
+ 136              		.file 2 "src/../lib/hw.h"
+ 137              		.file 3 "src/../lib/console.h"
+ 138              		.file 4 "src/../h/syscall_c.hpp"
+GAS LISTING /tmp/ccNt4vIu.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.cpp
+     /tmp/ccNt4vIu.s:12     .text:0000000000000000 main
+     /tmp/ccNt4vIu.s:16     .text:0000000000000000 .L0 
+     /tmp/ccNt4vIu.s:17     .text:0000000000000000 .L0 
+     /tmp/ccNt4vIu.s:18     .text:0000000000000004 .L0 
+     /tmp/ccNt4vIu.s:24     .text:0000000000000018 .L0 
+     /tmp/ccNt4vIu.s:25     .text:0000000000000018 .L0 
+     /tmp/ccNt4vIu.s:26     .text:0000000000000018 .L0 
+     /tmp/ccNt4vIu.s:27     .text:0000000000000018 .L0 
+     /tmp/ccNt4vIu.s:28     .text:0000000000000018 .L0 
+     /tmp/ccNt4vIu.s:30     .text:000000000000001c .L0 
+     /tmp/ccNt4vIu.s:32     .text:000000000000001c .L0 
+     /tmp/ccNt4vIu.s:33     .text:000000000000001c .L0 
+     /tmp/ccNt4vIu.s:37     .text:0000000000000028 .L0 
+     /tmp/ccNt4vIu.s:38     .text:0000000000000028 .L0 
+     /tmp/ccNt4vIu.s:44     .text:0000000000000038 .L0 
+     /tmp/ccNt4vIu.s:46     .text:000000000000003c .L0 
+     /tmp/ccNt4vIu.s:47     .text:000000000000003c .L0 
+     /tmp/ccNt4vIu.s:52     .text:0000000000000048 .L0 
+     /tmp/ccNt4vIu.s:53     .text:0000000000000048 .L0 
+     /tmp/ccNt4vIu.s:59     .text:0000000000000058 .L0 
+     /tmp/ccNt4vIu.s:61     .text:000000000000005c .L0 
+     /tmp/ccNt4vIu.s:62     .text:000000000000005c .L0 
+     /tmp/ccNt4vIu.s:68     .text:0000000000000068 .L0 
+     /tmp/ccNt4vIu.s:69     .text:0000000000000068 .L0 
+     /tmp/ccNt4vIu.s:73     .text:0000000000000074 .L0 
+     /tmp/ccNt4vIu.s:74     .text:0000000000000074 .L0 
+     /tmp/ccNt4vIu.s:78     .text:0000000000000080 .L0 
+     /tmp/ccNt4vIu.s:79     .text:0000000000000080 .L0 
+     /tmp/ccNt4vIu.s:85     .text:0000000000000090 .L0 
+     /tmp/ccNt4vIu.s:89     .text:0000000000000094 .L0 
+     /tmp/ccNt4vIu.s:90     .text:0000000000000094 .L0 
+     /tmp/ccNt4vIu.s:94     .text:00000000000000a0 .L0 
+     /tmp/ccNt4vIu.s:95     .text:00000000000000a0 .L0 
+     /tmp/ccNt4vIu.s:99     .text:00000000000000ac .L0 
+     /tmp/ccNt4vIu.s:100    .text:00000000000000ac .L0 
+     /tmp/ccNt4vIu.s:104    .text:00000000000000b8 .L0 
+     /tmp/ccNt4vIu.s:105    .text:00000000000000bc .L0 
+     /tmp/ccNt4vIu.s:106    .text:00000000000000bc .L0 
+     /tmp/ccNt4vIu.s:108    .text:00000000000000c0 .L0 
+     /tmp/ccNt4vIu.s:109    .text:00000000000000c0 .L0 
+     /tmp/ccNt4vIu.s:111    .text:00000000000000c4 .L0 
+     /tmp/ccNt4vIu.s:114    .text:00000000000000c8 .L0 
+     /tmp/ccNt4vIu.s:117    .text:00000000000000cc .L0 
+     /tmp/ccNt4vIu.s:120    .text:00000000000000d0 .L0 
+     /tmp/ccNt4vIu.s:124    .text:00000000000000d4 .L0 
+     /tmp/ccNt4vIu.s:126    .text:00000000000000d4 .L0 
+     /tmp/ccNt4vIu.s:127    .text:00000000000000d4 .L0 
+     /tmp/ccNt4vIu.s:132    .text:00000000000000e4 .L0 
+     /tmp/ccNt4vIu.s:139    .text:00000000000000e4 .L0 
+     /tmp/ccNt4vIu.s:50     .text:0000000000000048 .L2
+     /tmp/ccNt4vIu.s:66     .text:0000000000000068 .L3
+     /tmp/ccNt4vIu.s:123    .text:00000000000000d4 .L6
+     /tmp/ccNt4vIu.s:87     .text:0000000000000094 .L4
+     /tmp/ccNt4vIu.s:446    .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+     /tmp/ccNt4vIu.s:738    .debug_str:000000000000004f .LASF22
+GAS LISTING /tmp/ccNt4vIu.s 			page 6
+
+
+     /tmp/ccNt4vIu.s:770    .debug_str:00000000000001ee .LASF23
+     /tmp/ccNt4vIu.s:758    .debug_str:0000000000000184 .LASF24
+     /tmp/ccNt4vIu.s:8      .text:0000000000000000 .Ltext0
+     /tmp/ccNt4vIu.s:135    .text:00000000000000e4 .Letext0
+     /tmp/ccNt4vIu.s:724    .debug_line:0000000000000000 .Ldebug_line0
+     /tmp/ccNt4vIu.s:726    .debug_str:0000000000000000 .LASF0
+     /tmp/ccNt4vIu.s:766    .debug_str:00000000000001cb .LASF1
+     /tmp/ccNt4vIu.s:750    .debug_str:0000000000000154 .LASF2
+     /tmp/ccNt4vIu.s:744    .debug_str:0000000000000138 .LASF4
+     /tmp/ccNt4vIu.s:740    .debug_str:0000000000000113 .LASF3
+     /tmp/ccNt4vIu.s:732    .debug_str:000000000000002a .LASF5
+     /tmp/ccNt4vIu.s:742    .debug_str:0000000000000125 .LASF6
+     /tmp/ccNt4vIu.s:764    .debug_str:00000000000001b8 .LASF7
+     /tmp/ccNt4vIu.s:774    .debug_str:000000000000020a .LASF8
+     /tmp/ccNt4vIu.s:728    .debug_str:000000000000000d .LASF9
+     /tmp/ccNt4vIu.s:730    .debug_str:000000000000001b .LASF10
+     /tmp/ccNt4vIu.s:772    .debug_str:00000000000001fb .LASF11
+     /tmp/ccNt4vIu.s:734    .debug_str:0000000000000031 .LASF12
+     /tmp/ccNt4vIu.s:768    .debug_str:00000000000001de .LASF13
+     /tmp/ccNt4vIu.s:748    .debug_str:0000000000000148 .LASF14
+     /tmp/ccNt4vIu.s:762    .debug_str:00000000000001a2 .LASF15
+     /tmp/ccNt4vIu.s:756    .debug_str:000000000000016e .LASF16
+     /tmp/ccNt4vIu.s:752    .debug_str:0000000000000162 .LASF25
+     /tmp/ccNt4vIu.s:13     .text:0000000000000000 .LFB0
+     /tmp/ccNt4vIu.s:133    .text:00000000000000e4 .LFE0
+     /tmp/ccNt4vIu.s:666    .debug_loc:0000000000000000 .LLST0
+     /tmp/ccNt4vIu.s:677    .debug_loc:0000000000000036 .LLST1
+     /tmp/ccNt4vIu.s:692    .debug_loc:000000000000007f .LLST2
+     /tmp/ccNt4vIu.s:35     .text:0000000000000028 .LVL0
+     /tmp/ccNt4vIu.s:40     .text:0000000000000034 .LVL1
+     /tmp/ccNt4vIu.s:49     .text:0000000000000048 .LVL3
+     /tmp/ccNt4vIu.s:55     .text:0000000000000054 .LVL4
+     /tmp/ccNt4vIu.s:65     .text:0000000000000068 .LVL7
+     /tmp/ccNt4vIu.s:71     .text:0000000000000074 .LVL8
+     /tmp/ccNt4vIu.s:76     .text:0000000000000080 .LVL9
+     /tmp/ccNt4vIu.s:81     .text:000000000000008c .LVL10
+     /tmp/ccNt4vIu.s:92     .text:00000000000000a0 .LVL13
+     /tmp/ccNt4vIu.s:97     .text:00000000000000ac .LVL14
+     /tmp/ccNt4vIu.s:102    .text:00000000000000b8 .LVL15
+     /tmp/ccNt4vIu.s:130    .text:00000000000000e0 .LVL21
+     /tmp/ccNt4vIu.s:754    .debug_str:0000000000000167 .LASF17
+     /tmp/ccNt4vIu.s:736    .debug_str:0000000000000041 .LASF18
+     /tmp/ccNt4vIu.s:776    .debug_str:000000000000021a .LASF19
+     /tmp/ccNt4vIu.s:760    .debug_str:0000000000000194 .LASF20
+     /tmp/ccNt4vIu.s:746    .debug_str:000000000000013f .LASF21
+     /tmp/ccNt4vIu.s:42     .text:0000000000000038 .LVL2
+     /tmp/ccNt4vIu.s:112    .text:00000000000000c4 .LVL16
+     /tmp/ccNt4vIu.s:122    .text:00000000000000d4 .LVL19
+     /tmp/ccNt4vIu.s:57     .text:0000000000000058 .LVL5
+     /tmp/ccNt4vIu.s:63     .text:0000000000000060 .LVL6
+     /tmp/ccNt4vIu.s:118    .text:00000000000000cc .LVL18
+     /tmp/ccNt4vIu.s:83     .text:0000000000000090 .LVL11
+     /tmp/ccNt4vIu.s:86     .text:0000000000000094 .LVL12
+     /tmp/ccNt4vIu.s:115    .text:00000000000000c8 .LVL17
+     /tmp/ccNt4vIu.s:128    .text:00000000000000d8 .LVL20
+     /tmp/ccNt4vIu.s:140    .debug_info:0000000000000000 .Ldebug_info0
+
+GAS LISTING /tmp/ccNt4vIu.s 			page 7
+
+
+UNDEFINED SYMBOLS
+__putc
+_Z9mem_allocm
+_Z8mem_freePv

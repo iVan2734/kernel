@@ -3,10 +3,6 @@
 .align 4
 interrupt:
     addi sp,sp,-256
-
-    csrr t0,sepc
-    addi t0,t0,4
-    csrw sepc, t0
     sd x0,0x00(sp)
     sd x1,0x08(sp)
     sd x2,0x10(sp)
@@ -17,8 +13,8 @@ interrupt:
     sd x7,0x38(sp)
     sd x8,0x40(sp)
     sd x9,0x48(sp)
-    #sd x10,0x50(sp)
-    #sd x11,0x58(sp)
+    sd x10,0x50(sp)
+    sd x11,0x58(sp)
     sd x12,0x60(sp)
     sd x13,0x68(sp)
     sd x14,0x70(sp)
@@ -42,7 +38,6 @@ interrupt:
 
     call interruptHandler
 
-    addi sp,sp,-256
     ld x0,0x00(sp)
     ld x1,0x08(sp)
     ld x2,0x10(sp)
@@ -53,8 +48,8 @@ interrupt:
     ld x7,0x38(sp)
     ld x8,0x40(sp)
     ld x9,0x48(sp)
-    #ld x10,0x50(sp)
-    #ld x11,0x58(sp)
+    ld x10,0x50(sp)
+    ld x11,0x58(sp)
     ld x12,0x60(sp)
     ld x13,0x68(sp)
     ld x14,0x70(sp)
@@ -75,6 +70,9 @@ interrupt:
     ld x29,0xE8(sp)
     ld x30,0xF0(sp)
     ld x31,0xF8(sp)
+
+    addi sp,sp,256
+
 
     sret
 
