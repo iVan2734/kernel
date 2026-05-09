@@ -1,37 +1,38 @@
 #include "../lib/hw.h"
 #include "../lib/console.h"
-#include "interruptRoutine.S"
+#include "../h/MemoryAllocator.hpp"
 
-extern "C" void interrupt(){};
 
 extern "C" void interruptHandler() {
-    uint64 scauseVar;
-    __asm__ volatile("csr %[scause], scause": [scause] "=r" (scauseVar));
-    if (scauseVar == 0x0000000000000009UL) {
+    uint64 scauseValue;
+    void* addr;
+    __asm__ volatile("csrr %[scause], scause": [scause] "=r" (scauseValue));
+    /*
+    if (scauseValue == (0x01<<3)) {
         //ecall iz sistemskog rezima
-    }
-    else if (scauseVar == 0x0000000000000008UL) {
+    }*/
+    if (scauseValue == (0x01<<3 | 0x01) || scauseValue == (0x01<<3)) {
         //ecall iz korisnickog rezima
         uint64 code;
         //big swittch with C API codes
-        __asm__ volatile("csrr %0, a0" : "=r" (code) );
+        __asm__ volatile("mv %0, a0" : "=r" (code) );
         switch (code) {
-            0x01:
+            case 0x01:
                 size_t size;
                 //write from a1 to size
-                __asm__ volatile ("csrr %0, a1" : "=r" (size) );
-                void* addr=MemoryAllocator::getInstance().memAlloc(size);
+                __asm__ volatile ("mv %0, a1" : "=r" (size) );
+                addr=MemoryAllocator::getInstance().memAlloc(size);
                 //write to a0 return value
-                __asm__ volatile ("csrw a0, %0" : : "r" (addr));
+                __asm__ volatile ("mv a0, %0" : : "r" (addr));
                 break;
-            0x02:
-                void* addr;
+            case 0x02:
+
                 //write from a1 to addr
-                __asm__ volatile ("csrr %0, a1" : "=r" (addr));
+                __asm__ volatile ("mv %0, a1" : "=r" (addr));
 
                 int returnValue=MemoryAllocator::getInstance().free(addr);
                 //write to a0 return value
-                __asm__ volatile ("csrw a0, %0" : : "r" (returnValue));
+                __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
                 break;
 
         }

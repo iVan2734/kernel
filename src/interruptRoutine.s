@@ -1,3 +1,7 @@
+# 1 "src/interruptRoutine.S"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "src/interruptRoutine.S"
 .extern interruptHandler
 .global interrupt
 .align 4
@@ -77,7 +81,3 @@ interrupt:
     ld x31,0xF8(sp)
 
     sret
-
-
-
-

@@ -1,6 +1,6 @@
 #include "../lib/hw.h"
 #include "../lib/console.h"
-#include "syscall_c.hpp"
+#include "../h/syscall_c.hpp"
 
 /*
 void memoryAllocatorTest() {
