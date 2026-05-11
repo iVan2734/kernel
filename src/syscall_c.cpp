@@ -29,6 +29,18 @@ int mem_free(void* addr) {
     //need to put interrupt address to stvec
     // ecall
 
+    //where we'll jump to
+    __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt) );
+    __asm__ volatile("ecall");
+    uint64 returnValue;
+    __asm__ volatile("mv %0, a1" : "=r" (returnValue));
+    return returnValue;
+}
+
+int thread_create( thread_t* handle, void( *start_routine)( void*), void* arg ){
+
+
+    //where we'll jump to(THIS BLOCK STAYS THE SAME FOR NOW)
     __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt) );
     __asm__ volatile("ecall");
     uint64 returnValue;

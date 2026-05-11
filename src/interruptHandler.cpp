@@ -9,9 +9,12 @@ extern "C" void interruptHandler() {
     int returnValue;
 
     __asm__ volatile("csrr %[scause], scause": [scause] "=r" (scauseValue));
+
+    //increment PC
     __asm__ volatile("csrr t0,sepc");
     __asm__ volatile("addi t0,t0,4");
     __asm__ volatile("csrw sepc,t0");
+    //I am not sure why the value 0x09 is inside my scause if I call this from user space, but I will figure that out later
     if (scauseValue == (0x01<<3 | 0x01) || scauseValue == (0x01<<3)) {
         //ecall iz korisnickog rezima
         uint64 code;
