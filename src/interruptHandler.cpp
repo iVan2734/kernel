@@ -1,5 +1,6 @@
 #include "../lib/hw.h"
 #include "../h/MemoryAllocator.hpp"
+#include "TCB.hpp"
 
 
 extern "C" void interruptHandler() {
@@ -14,7 +15,9 @@ extern "C" void interruptHandler() {
     __asm__ volatile("csrr t0,sepc");
     __asm__ volatile("addi t0,t0,4");
     __asm__ volatile("csrw sepc,t0");
-    //I am not sure why the value 0x09 is inside my scause if I call this from user space, but I will figure that out later
+    //I am not sure why the value 0x09 is inside my scause if I call this from user space,
+    // but I will figure that out later
+    //I was stupid becusae I am calling form privilege regime so thats why its 9 instead of 8 I need to go back to user Regime and call all those things
     if (scauseValue == (0x01<<3 | 0x01) || scauseValue == (0x01<<3)) {
         //ecall iz korisnickog rezima
         uint64 code;
@@ -29,7 +32,6 @@ extern "C" void interruptHandler() {
                 __asm__ volatile ("mv a0, %0" : : "r" (addr));
                 break;
             case 0x02:
-
                 //write from a1 to addr
                 __asm__ volatile ("mv %0, a1" : "=r" (addr));
 
@@ -37,6 +39,14 @@ extern "C" void interruptHandler() {
                 //write to a0 return value
                 __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
                 break;
+
+			case 0x011:
+				//I dont know if I should I allocate here the stack for the thread on in the syscall_c file where the C call is located
+				thread_t*
+				__asm__ volatile ("mv %0, a1" : "=r" (addr));
+				__asm__ volatile ("mv %0, a2" : "=r" (addr));
+
+
         }
     }
     else {

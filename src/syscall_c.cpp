@@ -37,9 +37,7 @@ int mem_free(void* addr) {
     return returnValue;
 }
 
-int thread_create( thread_t* handle, void( *start_routine)( void*), void* arg ){
-
-
+int thread_create( thread_t* handle, void ( *start_routine)(void*), void* arg ){
     //where we'll jump to(THIS BLOCK STAYS THE SAME FOR NOW)
     __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt) );
     __asm__ volatile("ecall");
