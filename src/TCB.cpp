@@ -17,6 +17,6 @@ void TCB::dispatch(){
     TCB::contextSwitch(&old->context,&old->context);
 }
 
-TCB *TCB::create_thread(Body) {
+TCB *TCB::create_thread(Body body) {
     return new TCB(body);
 }

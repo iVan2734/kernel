@@ -1,6 +1,6 @@
 #include "../lib/hw.h"
 #include "../h/MemoryAllocator.hpp"
-#include "TCB.hpp"
+#include "../h/TCB.hpp"
 
 
 extern "C" void interruptHandler() {
@@ -42,7 +42,6 @@ extern "C" void interruptHandler() {
 
 			case 0x011:
 				//I dont know if I should I allocate here the stack for the thread on in the syscall_c file where the C call is located
-				thread_t*
 				__asm__ volatile ("mv %0, a1" : "=r" (addr));
 				__asm__ volatile ("mv %0, a2" : "=r" (addr));
 

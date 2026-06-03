@@ -1,4 +1,3 @@
-
 #ifndef LIST_HPP
 #define LIST_HPP
 
@@ -60,11 +59,10 @@ public:
         delete elem;
         return ret;
 
-        T *peekLast(){
-            if(!tail) {return 0;}
-            return tail->next;
-        }
-
+    }
+    T *peekLast(){
+        if(!tail) {return 0;}
+        return tail->next;
     }
 private:
     struct Elem{

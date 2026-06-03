@@ -1,8 +1,8 @@
 #include "../h/Scheduler.hpp"
 
-Scheduler* Scheduler::getInstance(){
+Scheduler& Scheduler::getInstance(){
     static Scheduler instance;
-    return &instance;
+    return instance;
 }
 
 Scheduler::Scheduler(){
@@ -10,11 +10,11 @@ Scheduler::Scheduler(){
 }
 
 void Scheduler::put(TCB* t){
-    ready.addFirst(t);
+    Scheduler::getInstance().ready.addFirst(t);
 }
 
 TCB* Scheduler::get(){
-    return ready.removelast();
+    return Scheduler::getInstance().ready.removeLast();
 }
 
 

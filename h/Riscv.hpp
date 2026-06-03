@@ -17,8 +17,8 @@ public:
     static uint64 r_stval();
 
     //write helpers
-    static void w_scause(int64 scause);
-    static void w_sepc(int64 sepc);
+    static void w_scause(uint64 scause);
+    static void w_sepc(uint64 sepc);
     static void w_stvec(uint64 stvec);
     static void w_stval(uint64 stval);
 
@@ -29,7 +29,7 @@ public:
     };
 
     static void ms_sip(uint64 mask);
-    static void mc_sip(int64 mask);
+    static void mc_sip(uint64 mask);
     static uint64 r_sip();
     static void w_sip(uint64 sip);
 
@@ -48,25 +48,25 @@ private:
 
 };
 
-inline uint Riscv::r_scause(){
+inline uint64 Riscv::r_scause(){
     uint64 volatile scause;
     __asm__ volatile("csrr %[scause], scause":[scause] "=r"(scause));
     return scause;
 
 }
-inline uint Riscv::r_sepc(){
+inline uint64 Riscv::r_sepc(){
     uint64 volatile sepc;
     __asm__ volatile("csrr %[sepc], sepc":[sepc] "=r"(sepc));
     return sepc;
 
 }
-inline uint Riscv::r_stvec(){
+inline uint64 Riscv::r_stvec(){
     uint64 volatile stvec;
     __asm__ volatile("csrr %[stvec], stvec":[stvec] "=r"(stvec));
     return stvec;
 
 }
-inline uint Riscv::r_stval(){
+inline uint64 Riscv::r_stval(){
     uint64 volatile stval;
     __asm__ volatile("csrr %[stval], stval":[stval] "=r"(stval));
     return stval;

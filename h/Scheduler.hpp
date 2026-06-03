@@ -2,14 +2,16 @@
 #define SCHEDULER_HPP
 
 #include "List.hpp"
-#include "TCB.hpp"
+
+class TCB;
 
 class Scheduler {
 public:
     static Scheduler& getInstance();
-    static void put(TCB* thread);
+    static void put(TCB *thread);
     static TCB* get();
 private:
+
     Scheduler();
     static List<TCB> ready;
 };
