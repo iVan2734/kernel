@@ -1,6 +1,6 @@
 
 #include "../h/printHelper.hpp"
-#include "./lib/console.h"
+#include "../lib/console.h"
 
 void printString(char const *string){
     while(*string!='\0'){
@@ -27,9 +27,9 @@ void printInteger(uint64 integer){
     i=0;
     do{
         buf[i++]=digits[x%10];
-    } while((x/10)!=0);
+    } while((x/=10)!=0);
     if(neg){
-        buf[i++]='- ';
+        buf[i++]='-';
     }
     while(--i>=0){
         __putc(buf[i]);

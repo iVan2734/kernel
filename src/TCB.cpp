@@ -1,6 +1,5 @@
-
 #include "../h/TCB.hpp"
-#include "..h/Riscv.hpp"
+#include "../h/Riscv.hpp"
 #include "../h/Scheduler.hpp"
 
 TCB *TCB::running=nullptr;
@@ -13,9 +12,11 @@ void TCB::yield(){
 
 void TCB::dispatch(){
     TCB *old=running;
-    if(!old->isFinished()){ Scheduler::getInstance()->put(old); }
-    running=Scheduler::getInstance()->get();
+    if(!old->isFinished()){ Scheduler::getInstance().put(old); }
+    running=Scheduler::getInstance().get();
     TCB::contextSwitch(&old->context,&old->context);
 }
 
-TCB* TCB::create_thread(Body)
+TCB *TCB::create_thread(Body) {
+    return new TCB(body);
+}

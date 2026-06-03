@@ -1,7 +1,12 @@
 #include "../h/TCB.hpp"
-#includ
-#include "../h/printHelpers.hpp"
+#include "../lib/hw.h"
+#include "../h/printHelper.hpp"
 
+uint64 fibonacci(uint64 n) {
+    if (n == 0 || n == 1) { return n; }
+    if (n % 4 == 0) TCB::yield();
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
 
 void workerBodyA() {
     uint8 i = 0;
@@ -9,7 +14,7 @@ void workerBodyA() {
 
     printString("A: yield\n");
     __asm__ ("li t1, 7");
-    CCB::yield();
+    TCB::yield();
 
     uint64 t1 = 0;
     __asm__ ("mv %[t1], t1" : [t1] "=r"(t1));
@@ -19,8 +24,8 @@ void workerBodyA() {
     printString("A: fibonaci="); printInteger(result); printString("\n");
 
     for (; i < 6; i++) { printString("A: i="); printInteger(i); printString("\n"); }
-    CCB::running->setFinished(true);
-    CCB::yield();
+    TCB::running->setFinished(true);
+    TCB::yield();
 }
 
 void workerBodyB() {
@@ -29,21 +34,17 @@ void workerBodyB() {
 
     printString("B: yield\n");
     __asm__ ("li t1, 5");
-    CCB::yield();
+    TCB::yield();
 
     uint64 result = fibonacci(23);
     printString("A: fibonaci="); printInteger(result); printString("\n");
 
     for (; i < 16; i++) { printString("B: i="); printInteger(i); printString("\n"); }
-    CCB::running->setFinished(true);
-    CCB::yield();
+    TCB::running->setFinished(true);
+    TCB::yield();
 }
 
-uint64 fibonacci(uint64 n) {
-    if (n == 0 || n == 1) { return n; }
-    if (n % 4 == 0) CCB::yield();
-    return fibonacci(n - 1) + fibonacci(n - 2);
-}
+
 
 
 
@@ -55,11 +56,11 @@ int main() {
     TCB::running=threads[0];
 
     threads[1]=TCB::create_thread(workerBodyA);
-    printStirng("Thread workerA ");
+    printString("Thread workerA ");
 
 
     threads[2]=TCB::create_thread(workerBodyB);
-    printStirng("Thread workerB ");
+    printString("Thread workerB ");
 
     while(!(threads[1]->isFinished() && threads[2]->isFinished())){
         TCB::yield();
@@ -69,7 +70,7 @@ int main() {
         delete thread;
     }
 
-    printString("Finished")
+    printString("Finished");
 
     return 0;
 

@@ -46,7 +46,7 @@ public:
     static void w_sstatus(uint64 sstatus);
 private:
 
-}
+};
 
 inline uint Riscv::r_scause(){
     uint64 volatile scause;
