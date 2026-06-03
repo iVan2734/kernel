@@ -1,0 +1,842 @@
+GAS LISTING /tmp/cc2CyzAU.s 			page 1
+
+
+   1              		.file	"interruptHandler.cpp"
+   2              		.option nopic
+   3              		.option norelax
+   4              		.attribute arch, "rv64i2p0_m2p0_a2p0"
+   5              		.attribute unaligned_access, 0
+   6              		.attribute stack_align, 16
+   7              		.text
+   8              	.Ltext0:
+   9              		.align	2
+  10              		.globl	_Znwm
+  12              	_Znwm:
+  13              	.LFB17:
+  14              		.file 1 "src/../h/TCB.hpp"
+   1:src/../h/TCB.hpp **** #ifndef TCB_HPP
+   2:src/../h/TCB.hpp **** #define TCB_HPP
+   3:src/../h/TCB.hpp **** 
+   4:src/../h/TCB.hpp **** #include "../lib/hw.h"
+   5:src/../h/TCB.hpp **** #include "MemoryAllocator.hpp"
+   6:src/../h/TCB.hpp **** #include "Scheduler.hpp"
+   7:src/../h/TCB.hpp **** 
+   8:src/../h/TCB.hpp **** 
+   9:src/../h/TCB.hpp **** class TCB{
+  10:src/../h/TCB.hpp **** public:
+  11:src/../h/TCB.hpp ****     ~TCB(){ delete[] stack;}
+  12:src/../h/TCB.hpp ****     using Body = void (*)();
+  13:src/../h/TCB.hpp ****     static TCB *create_thread(Body body);
+  14:src/../h/TCB.hpp ****     uint64 getTimeSlice() const{ return timeSlice;}
+  15:src/../h/TCB.hpp **** 
+  16:src/../h/TCB.hpp ****     bool isFinished() const {return finished;}
+  17:src/../h/TCB.hpp ****     void setFinished(bool finished){this->finished=finished;}
+  18:src/../h/TCB.hpp **** 
+  19:src/../h/TCB.hpp ****     static void yield();
+  20:src/../h/TCB.hpp ****     static TCB *running;
+  21:src/../h/TCB.hpp **** 
+  22:src/../h/TCB.hpp **** private:
+  23:src/../h/TCB.hpp ****     TCB(Body body):
+  24:src/../h/TCB.hpp ****     body(body),
+  25:src/../h/TCB.hpp ****     stack(body!=nullptr ? new uint64[STACK_SIZE] : nullptr),
+  26:src/../h/TCB.hpp ****     context({
+  27:src/../h/TCB.hpp ****         body!=nullptr ? (uint64) body : 0,
+  28:src/../h/TCB.hpp ****         stack!=nullptr ? (uint64) &stack[STACK_SIZE] : 0
+  29:src/../h/TCB.hpp ****     }),
+  30:src/../h/TCB.hpp ****     finished(false)
+  31:src/../h/TCB.hpp ****     {
+  32:src/../h/TCB.hpp ****         if(body!=nullptr) Scheduler::getInstance().put(this);
+  33:src/../h/TCB.hpp ****     }
+  34:src/../h/TCB.hpp **** 
+  35:src/../h/TCB.hpp ****     struct Context{
+  36:src/../h/TCB.hpp ****         uint64 ra;
+  37:src/../h/TCB.hpp ****         uint64 sp;
+  38:src/../h/TCB.hpp ****     };
+  39:src/../h/TCB.hpp ****     Body body;
+  40:src/../h/TCB.hpp ****     uint64 *stack;
+  41:src/../h/TCB.hpp ****     Context context;
+  42:src/../h/TCB.hpp ****     bool finished;
+  43:src/../h/TCB.hpp ****     uint64 timeSlice;
+  44:src/../h/TCB.hpp **** 
+GAS LISTING /tmp/cc2CyzAU.s 			page 2
+
+
+  45:src/../h/TCB.hpp ****     friend class Riscv;
+  46:src/../h/TCB.hpp **** 
+  47:src/../h/TCB.hpp ****     static void threadWrapper();
+  48:src/../h/TCB.hpp ****     static void contextSwitch(Context *oldContext,Context *newContext);
+  49:src/../h/TCB.hpp ****     static void dispatch();
+  50:src/../h/TCB.hpp **** 
+  51:src/../h/TCB.hpp ****     static uint64 timeSliceCounter;
+  52:src/../h/TCB.hpp **** 
+  53:src/../h/TCB.hpp ****     static uint64 constexpr STACK_SIZE=1024;
+  54:src/../h/TCB.hpp ****     static uint64 constexpr TIME_SLICE=2;
+  55:src/../h/TCB.hpp **** };
+  56:src/../h/TCB.hpp **** 
+  57:src/../h/TCB.hpp **** void *operator new(uint64 n){
+  15              		.loc 1 57 29
+  16              		.cfi_startproc
+  17              	.LVL0:
+  18 0000 130101FE 		addi	sp,sp,-32
+  19              		.cfi_def_cfa_offset 32
+  20 0004 233C1100 		sd	ra,24(sp)
+  21 0008 23388100 		sd	s0,16(sp)
+  22 000c 23349100 		sd	s1,8(sp)
+  23              		.cfi_offset 1, -8
+  24              		.cfi_offset 8, -16
+  25              		.cfi_offset 9, -24
+  26 0010 13040102 		addi	s0,sp,32
+  27              		.cfi_def_cfa 8, 0
+  28 0014 93040500 		mv	s1,a0
+  58:src/../h/TCB.hpp ****     return MemoryAllocator::getInstance().memAlloc(n);
+  29              		.loc 1 58 5
+  30              		.loc 1 58 41 is_stmt 0
+  31 0018 97000000 		call	_ZN15MemoryAllocator11getInstanceEv
+  31      E7800000 
+  32              	.LVL1:
+  33              		.loc 1 58 51
+  34 0020 93850400 		mv	a1,s1
+  35 0024 97000000 		call	_ZN15MemoryAllocator8memAllocEm
+  35      E7800000 
+  36              	.LVL2:
+  59:src/../h/TCB.hpp **** }
+  37              		.loc 1 59 1
+  38 002c 83308101 		ld	ra,24(sp)
+  39              		.cfi_restore 1
+  40 0030 03340101 		ld	s0,16(sp)
+  41              		.cfi_restore 8
+  42              		.cfi_def_cfa 2, 32
+  43 0034 83348100 		ld	s1,8(sp)
+  44              		.cfi_restore 9
+  45              	.LVL3:
+  46 0038 13010102 		addi	sp,sp,32
+  47              		.cfi_def_cfa_offset 0
+  48 003c 67800000 		jr	ra
+  49              		.cfi_endproc
+  50              	.LFE17:
+  52              		.align	2
+  53              		.globl	_Znam
+  55              	_Znam:
+  56              	.LFB18:
+GAS LISTING /tmp/cc2CyzAU.s 			page 3
+
+
+  60:src/../h/TCB.hpp **** 
+  61:src/../h/TCB.hpp **** 
+  62:src/../h/TCB.hpp **** void *operator new[](uint64 n){
+  57              		.loc 1 62 31 is_stmt 1
+  58              		.cfi_startproc
+  59              	.LVL4:
+  60 0040 130101FE 		addi	sp,sp,-32
+  61              		.cfi_def_cfa_offset 32
+  62 0044 233C1100 		sd	ra,24(sp)
+  63 0048 23388100 		sd	s0,16(sp)
+  64 004c 23349100 		sd	s1,8(sp)
+  65              		.cfi_offset 1, -8
+  66              		.cfi_offset 8, -16
+  67              		.cfi_offset 9, -24
+  68 0050 13040102 		addi	s0,sp,32
+  69              		.cfi_def_cfa 8, 0
+  70 0054 93040500 		mv	s1,a0
+  63:src/../h/TCB.hpp ****     return MemoryAllocator::getInstance().memAlloc(n);
+  71              		.loc 1 63 5
+  72              		.loc 1 63 41 is_stmt 0
+  73 0058 97000000 		call	_ZN15MemoryAllocator11getInstanceEv
+  73      E7800000 
+  74              	.LVL5:
+  75              		.loc 1 63 51
+  76 0060 93850400 		mv	a1,s1
+  77 0064 97000000 		call	_ZN15MemoryAllocator8memAllocEm
+  77      E7800000 
+  78              	.LVL6:
+  64:src/../h/TCB.hpp **** }
+  79              		.loc 1 64 1
+  80 006c 83308101 		ld	ra,24(sp)
+  81              		.cfi_restore 1
+  82 0070 03340101 		ld	s0,16(sp)
+  83              		.cfi_restore 8
+  84              		.cfi_def_cfa 2, 32
+  85 0074 83348100 		ld	s1,8(sp)
+  86              		.cfi_restore 9
+  87              	.LVL7:
+  88 0078 13010102 		addi	sp,sp,32
+  89              		.cfi_def_cfa_offset 0
+  90 007c 67800000 		jr	ra
+  91              		.cfi_endproc
+  92              	.LFE18:
+  94              		.align	2
+  95              		.globl	_ZdlPv
+  97              	_ZdlPv:
+  98              	.LFB19:
+  65:src/../h/TCB.hpp **** 
+  66:src/../h/TCB.hpp **** void operator delete(void *p) noexcept{
+  99              		.loc 1 66 39 is_stmt 1
+ 100              		.cfi_startproc
+ 101              		.cfi_personality 0x9b,DW.ref.__gxx_personality_v0
+ 102              		.cfi_lsda 0x1b,.LLSDA19
+ 103              	.LVL8:
+ 104 0080 130101FE 		addi	sp,sp,-32
+ 105              		.cfi_def_cfa_offset 32
+ 106 0084 233C1100 		sd	ra,24(sp)
+GAS LISTING /tmp/cc2CyzAU.s 			page 4
+
+
+ 107 0088 23388100 		sd	s0,16(sp)
+ 108 008c 23349100 		sd	s1,8(sp)
+ 109              		.cfi_offset 1, -8
+ 110              		.cfi_offset 8, -16
+ 111              		.cfi_offset 9, -24
+ 112 0090 13040102 		addi	s0,sp,32
+ 113              		.cfi_def_cfa 8, 0
+ 114 0094 93040500 		mv	s1,a0
+  67:src/../h/TCB.hpp ****     MemoryAllocator::getInstance().free(p);
+ 115              		.loc 1 67 5
+ 116              		.loc 1 67 34 is_stmt 0
+ 117 0098 97000000 		call	_ZN15MemoryAllocator11getInstanceEv
+ 117      E7800000 
+ 118              	.LVL9:
+ 119              		.loc 1 67 40
+ 120 00a0 93850400 		mv	a1,s1
+ 121 00a4 97000000 		call	_ZN15MemoryAllocator4freeEPv
+ 121      E7800000 
+ 122              	.LVL10:
+  68:src/../h/TCB.hpp **** }
+ 123              		.loc 1 68 1
+ 124 00ac 83308101 		ld	ra,24(sp)
+ 125              		.cfi_restore 1
+ 126 00b0 03340101 		ld	s0,16(sp)
+ 127              		.cfi_restore 8
+ 128              		.cfi_def_cfa 2, 32
+ 129 00b4 83348100 		ld	s1,8(sp)
+ 130              		.cfi_restore 9
+ 131              	.LVL11:
+ 132 00b8 13010102 		addi	sp,sp,32
+ 133              		.cfi_def_cfa_offset 0
+ 134 00bc 67800000 		jr	ra
+ 135              		.cfi_endproc
+ 136              	.LFE19:
+ 137              		.globl	__gxx_personality_v0
+ 138              		.section	.gcc_except_table,"aw",@progbits
+ 139              	.LLSDA19:
+ 140 0000 FF       		.byte	0xff
+ 141 0001 FF       		.byte	0xff
+ 142 0002 03       		.byte	0x3
+ 143 0003 00       		.byte	0
+ 144              		.text
+ 146              		.align	2
+ 147              		.globl	_ZdaPv
+ 149              	_ZdaPv:
+ 150              	.LFB20:
+  69:src/../h/TCB.hpp **** 
+  70:src/../h/TCB.hpp **** void operator delete[](void *p) noexcept{
+ 151              		.loc 1 70 41 is_stmt 1
+ 152              		.cfi_startproc
+ 153              		.cfi_personality 0x9b,DW.ref.__gxx_personality_v0
+ 154              		.cfi_lsda 0x1b,.LLSDA20
+ 155              	.LVL12:
+ 156 00c0 130101FE 		addi	sp,sp,-32
+ 157              		.cfi_def_cfa_offset 32
+ 158 00c4 233C1100 		sd	ra,24(sp)
+ 159 00c8 23388100 		sd	s0,16(sp)
+GAS LISTING /tmp/cc2CyzAU.s 			page 5
+
+
+ 160 00cc 23349100 		sd	s1,8(sp)
+ 161              		.cfi_offset 1, -8
+ 162              		.cfi_offset 8, -16
+ 163              		.cfi_offset 9, -24
+ 164 00d0 13040102 		addi	s0,sp,32
+ 165              		.cfi_def_cfa 8, 0
+ 166 00d4 93040500 		mv	s1,a0
+  71:src/../h/TCB.hpp ****     MemoryAllocator::getInstance().free(p);
+ 167              		.loc 1 71 5
+ 168              		.loc 1 71 34 is_stmt 0
+ 169 00d8 97000000 		call	_ZN15MemoryAllocator11getInstanceEv
+ 169      E7800000 
+ 170              	.LVL13:
+ 171              		.loc 1 71 40
+ 172 00e0 93850400 		mv	a1,s1
+ 173 00e4 97000000 		call	_ZN15MemoryAllocator4freeEPv
+ 173      E7800000 
+ 174              	.LVL14:
+  72:src/../h/TCB.hpp **** }
+ 175              		.loc 1 72 1
+ 176 00ec 83308101 		ld	ra,24(sp)
+ 177              		.cfi_restore 1
+ 178 00f0 03340101 		ld	s0,16(sp)
+ 179              		.cfi_restore 8
+ 180              		.cfi_def_cfa 2, 32
+ 181 00f4 83348100 		ld	s1,8(sp)
+ 182              		.cfi_restore 9
+ 183              	.LVL15:
+ 184 00f8 13010102 		addi	sp,sp,32
+ 185              		.cfi_def_cfa_offset 0
+ 186 00fc 67800000 		jr	ra
+ 187              		.cfi_endproc
+ 188              	.LFE20:
+ 189              		.section	.gcc_except_table
+ 190              	.LLSDA20:
+ 191 0004 FF       		.byte	0xff
+ 192 0005 FF       		.byte	0xff
+ 193 0006 03       		.byte	0x3
+ 194 0007 00       		.byte	0
+ 195              		.text
+ 197              		.align	2
+ 198              		.globl	interruptHandler
+ 200              	interruptHandler:
+ 201              	.LFB21:
+ 202              		.file 2 "src/interruptHandler.cpp"
+   1:src/interruptHandler.cpp **** #include "../lib/hw.h"
+   2:src/interruptHandler.cpp **** #include "../h/MemoryAllocator.hpp"
+   3:src/interruptHandler.cpp **** #include "../h/TCB.hpp"
+   4:src/interruptHandler.cpp **** 
+   5:src/interruptHandler.cpp **** 
+   6:src/interruptHandler.cpp **** extern "C" void interruptHandler() {
+ 203              		.loc 2 6 36 is_stmt 1
+ 204              		.cfi_startproc
+   7:src/interruptHandler.cpp ****     uint64 scauseValue;
+ 205              		.loc 2 7 5
+   8:src/interruptHandler.cpp ****     void* addr;
+ 206              		.loc 2 8 5
+GAS LISTING /tmp/cc2CyzAU.s 			page 6
+
+
+   9:src/interruptHandler.cpp ****     size_t size;
+ 207              		.loc 2 9 5
+  10:src/interruptHandler.cpp ****     int returnValue;
+ 208              		.loc 2 10 5
+  11:src/interruptHandler.cpp **** 
+  12:src/interruptHandler.cpp ****     __asm__ volatile("csrr %[scause], scause": [scause] "=r" (scauseValue));
+ 209              		.loc 2 12 5
+ 210              		.loc 2 12 76 is_stmt 0
+ 211              	 #APP
+ 212              	# 12 "src/interruptHandler.cpp" 1
+  13              	
+ 213              		csrr a5, scause
+ 214              	# 0 "" 2
+ 215              	.LVL16:
+  14:src/interruptHandler.cpp ****     //increment PC
+  15:src/interruptHandler.cpp ****     __asm__ volatile("csrr t0,sepc");
+ 216              		.loc 2 15 5 is_stmt 1
+ 217              		.loc 2 15 37 is_stmt 0
+ 218              	# 15 "src/interruptHandler.cpp" 1
+  16              	    __asm__ volatile("addi t0,t0,4");
+ 219              		csrr t0,sepc
+ 220              	# 0 "" 2
+ 221              		.loc 2 16 5 is_stmt 1
+ 222              		.loc 2 16 37 is_stmt 0
+ 223              	# 16 "src/interruptHandler.cpp" 1
+  17              	    __asm__ volatile("csrw sepc,t0");
+ 224              		addi t0,t0,4
+ 225              	# 0 "" 2
+ 226              		.loc 2 17 5 is_stmt 1
+ 227              		.loc 2 17 37 is_stmt 0
+ 228              	# 17 "src/interruptHandler.cpp" 1
+  18              	    //I am not sure why the value 0x09 is inside my scause if I call this from user space,
+  19:src/interruptHandler.cpp ****     // but I will figure that out later
+  20:src/interruptHandler.cpp ****     //I was stupid becusae I am calling form privilege regime so thats why its 9 instead of 8 I nee
+  21:src/interruptHandler.cpp ****     if (scauseValue == (0x01<<3 | 0x01) || scauseValue == (0x01<<3)) {
+ 229              		csrw sepc,t0
+ 230              	# 0 "" 2
+ 231              		.loc 2 21 5 is_stmt 1
+ 232              	 #NO_APP
+ 233              	.LBB2:
+ 234              		.loc 2 21 41 is_stmt 0
+ 235 0110 938787FF 		addi	a5,a5,-8
+ 236              	.LVL17:
+ 237              		.loc 2 21 5
+ 238 0114 13071000 		li	a4,1
+ 239 0118 6374F700 		bleu	a5,a4,.L17
+ 240 011c 67800000 		ret
+ 241              	.L17:
+ 242              	.LBE2:
+   6:src/interruptHandler.cpp ****     uint64 scauseValue;
+ 243              		.loc 2 6 36
+ 244 0120 130101FE 		addi	sp,sp,-32
+ 245              		.cfi_def_cfa_offset 32
+ 246 0124 233C1100 		sd	ra,24(sp)
+ 247 0128 23388100 		sd	s0,16(sp)
+ 248 012c 23349100 		sd	s1,8(sp)
+ 249              		.cfi_offset 1, -8
+GAS LISTING /tmp/cc2CyzAU.s 			page 7
+
+
+ 250              		.cfi_offset 8, -16
+ 251              		.cfi_offset 9, -24
+ 252 0130 13040102 		addi	s0,sp,32
+ 253              		.cfi_def_cfa 8, 0
+ 254              	.LBB5:
+ 255              	.LBB3:
+  22:src/interruptHandler.cpp ****         //ecall iz korisnickog rezima
+  23:src/interruptHandler.cpp ****         uint64 code;
+ 256              		.loc 2 23 9 is_stmt 1
+  24:src/interruptHandler.cpp ****         //big swittch with C API codes
+  25:src/interruptHandler.cpp ****         __asm__ volatile("mv %0, a0" : "=r" (code) );
+ 257              		.loc 2 25 9
+ 258              		.loc 2 25 53 is_stmt 0
+ 259              	 #APP
+ 260              	# 25 "src/interruptHandler.cpp" 1
+  26              	        switch (code) {
+ 261              		mv a5, a0
+ 262              	# 0 "" 2
+ 263              	.LVL18:
+ 264              		.loc 2 26 9 is_stmt 1
+ 265              	 #NO_APP
+ 266 0138 13072000 		li	a4,2
+ 267 013c 6384E704 		beq	a5,a4,.L11
+ 268 0140 13071001 		li	a4,17
+ 269 0144 6380E706 		beq	a5,a4,.L12
+ 270 0148 13071000 		li	a4,1
+ 271 014c 638CE700 		beq	a5,a4,.L18
+ 272              	.LVL19:
+ 273              	.L9:
+ 274              	.LBE3:
+ 275              	.LBE5:
+  27:src/interruptHandler.cpp ****             case 0x01:
+  28:src/interruptHandler.cpp ****                 //write from a1 to size
+  29:src/interruptHandler.cpp ****                 __asm__ volatile ("mv %0, a1" : "=r" (size) );
+  30:src/interruptHandler.cpp ****                 addr=MemoryAllocator::getInstance().memAlloc(size);
+  31:src/interruptHandler.cpp ****                 //write to a0 return value
+  32:src/interruptHandler.cpp ****                 __asm__ volatile ("mv a0, %0" : : "r" (addr));
+  33:src/interruptHandler.cpp ****                 break;
+  34:src/interruptHandler.cpp ****             case 0x02:
+  35:src/interruptHandler.cpp ****                 //write from a1 to addr
+  36:src/interruptHandler.cpp ****                 __asm__ volatile ("mv %0, a1" : "=r" (addr));
+  37:src/interruptHandler.cpp **** 
+  38:src/interruptHandler.cpp ****                 returnValue=MemoryAllocator::getInstance().free(addr);
+  39:src/interruptHandler.cpp ****                 //write to a0 return value
+  40:src/interruptHandler.cpp ****                 __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
+  41:src/interruptHandler.cpp ****                 break;
+  42:src/interruptHandler.cpp **** 
+  43:src/interruptHandler.cpp **** 			case 0x011:
+  44:src/interruptHandler.cpp **** 				//I dont know if I should I allocate here the stack for the thread on in the syscall_c file whe
+  45:src/interruptHandler.cpp **** 				__asm__ volatile ("mv %0, a1" : "=r" (addr));
+  46:src/interruptHandler.cpp **** 				__asm__ volatile ("mv %0, a2" : "=r" (addr));
+  47:src/interruptHandler.cpp **** 
+  48:src/interruptHandler.cpp **** 
+  49:src/interruptHandler.cpp ****         }
+  50:src/interruptHandler.cpp ****     }
+  51:src/interruptHandler.cpp ****     else {
+  52:src/interruptHandler.cpp ****         //i will need to add other traps
+GAS LISTING /tmp/cc2CyzAU.s 			page 8
+
+
+  53:src/interruptHandler.cpp ****     }
+  54:src/interruptHandler.cpp **** }
+ 276              		.loc 2 54 1 is_stmt 0
+ 277 0150 83308101 		ld	ra,24(sp)
+ 278              		.cfi_remember_state
+ 279              		.cfi_restore 1
+ 280 0154 03340101 		ld	s0,16(sp)
+ 281              		.cfi_restore 8
+ 282              		.cfi_def_cfa 2, 32
+ 283 0158 83348100 		ld	s1,8(sp)
+ 284              		.cfi_restore 9
+ 285 015c 13010102 		addi	sp,sp,32
+ 286              		.cfi_def_cfa_offset 0
+ 287 0160 67800000 		jr	ra
+ 288              	.LVL20:
+ 289              	.L18:
+ 290              		.cfi_restore_state
+ 291              	.LBB6:
+ 292              	.LBB4:
+  27:src/interruptHandler.cpp ****             case 0x01:
+ 293              		.loc 2 27 13 is_stmt 1
+  29:src/interruptHandler.cpp ****                 addr=MemoryAllocator::getInstance().memAlloc(size);
+ 294              		.loc 2 29 17
+  29:src/interruptHandler.cpp ****                 addr=MemoryAllocator::getInstance().memAlloc(size);
+ 295              		.loc 2 29 62 is_stmt 0
+ 296              	 #APP
+ 297              	# 29 "src/interruptHandler.cpp" 1
+ 298              		mv s1, a1
+ 299              	# 0 "" 2
+ 300              	.LVL21:
+  30:src/interruptHandler.cpp ****                 //write to a0 return value
+ 301              		.loc 2 30 17 is_stmt 1
+  30:src/interruptHandler.cpp ****                 //write to a0 return value
+ 302              		.loc 2 30 51 is_stmt 0
+ 303              	 #NO_APP
+ 304 0168 97000000 		call	_ZN15MemoryAllocator11getInstanceEv
+ 304      E7800000 
+ 305              	.LVL22:
+  30:src/interruptHandler.cpp ****                 //write to a0 return value
+ 306              		.loc 2 30 61
+ 307 0170 93850400 		mv	a1,s1
+ 308 0174 97000000 		call	_ZN15MemoryAllocator8memAllocEm
+ 308      E7800000 
+ 309              	.LVL23:
+  32:src/interruptHandler.cpp ****                 break;
+ 310              		.loc 2 32 17 is_stmt 1
+  32:src/interruptHandler.cpp ****                 break;
+ 311              		.loc 2 32 62 is_stmt 0
+ 312              	 #APP
+ 313              	# 32 "src/interruptHandler.cpp" 1
+  33:src/interruptHandler.cpp ****             case 0x02:
+ 314              		mv a0, a0
+ 315              	# 0 "" 2
+ 316              		.loc 2 33 17 is_stmt 1
+ 317              	 #NO_APP
+ 318 0180 6FF01FFD 		j	.L9
+ 319              	.LVL24:
+GAS LISTING /tmp/cc2CyzAU.s 			page 9
+
+
+ 320              	.L11:
+  34:src/interruptHandler.cpp ****                 //write from a1 to addr
+ 321              		.loc 2 34 13
+  36:src/interruptHandler.cpp **** 
+ 322              		.loc 2 36 17
+  36:src/interruptHandler.cpp **** 
+ 323              		.loc 2 36 61 is_stmt 0
+ 324              	 #APP
+ 325              	# 36 "src/interruptHandler.cpp" 1
+ 326              		mv s1, a1
+ 327              	# 0 "" 2
+ 328              	.LVL25:
+  38:src/interruptHandler.cpp ****                 //write to a0 return value
+ 329              		.loc 2 38 17 is_stmt 1
+  38:src/interruptHandler.cpp ****                 //write to a0 return value
+ 330              		.loc 2 38 58 is_stmt 0
+ 331              	 #NO_APP
+ 332 0188 97000000 		call	_ZN15MemoryAllocator11getInstanceEv
+ 332      E7800000 
+ 333              	.LVL26:
+  38:src/interruptHandler.cpp ****                 //write to a0 return value
+ 334              		.loc 2 38 64
+ 335 0190 93850400 		mv	a1,s1
+ 336 0194 97000000 		call	_ZN15MemoryAllocator4freeEPv
+ 336      E7800000 
+ 337              	.LVL27:
+  40:src/interruptHandler.cpp ****                 break;
+ 338              		.loc 2 40 17 is_stmt 1
+  40:src/interruptHandler.cpp ****                 break;
+ 339              		.loc 2 40 69 is_stmt 0
+ 340              	 #APP
+ 341              	# 40 "src/interruptHandler.cpp" 1
+  41:src/interruptHandler.cpp **** 
+ 342              		mv a0, a0
+ 343              	# 0 "" 2
+ 344              		.loc 2 41 17 is_stmt 1
+ 345              	 #NO_APP
+ 346 01a0 6FF01FFB 		j	.L9
+ 347              	.LVL28:
+ 348              	.L12:
+  43:src/interruptHandler.cpp **** 				//I dont know if I should I allocate here the stack for the thread on in the syscall_c file whe
+ 349              		.loc 2 43 4
+  45:src/interruptHandler.cpp **** 				__asm__ volatile ("mv %0, a2" : "=r" (addr));
+ 350              		.loc 2 45 5
+  45:src/interruptHandler.cpp **** 				__asm__ volatile ("mv %0, a2" : "=r" (addr));
+ 351              		.loc 2 45 49 is_stmt 0
+ 352              	 #APP
+ 353              	# 45 "src/interruptHandler.cpp" 1
+ 354              		mv a5, a1
+ 355              	# 0 "" 2
+ 356              	.LVL29:
+  46:src/interruptHandler.cpp **** 
+ 357              		.loc 2 46 5 is_stmt 1
+  46:src/interruptHandler.cpp **** 
+ 358              		.loc 2 46 49 is_stmt 0
+ 359              	# 46 "src/interruptHandler.cpp" 1
+ 360              		mv a5, a2
+GAS LISTING /tmp/cc2CyzAU.s 			page 10
+
+
+ 361              	# 0 "" 2
+ 362              	 #NO_APP
+ 363              	.LBE4:
+ 364              	.LBE6:
+ 365              		.loc 2 54 1
+ 366 01ac 6FF05FFA 		j	.L9
+ 367              		.cfi_endproc
+ 368              	.LFE21:
+ 370              	.Letext0:
+ 371              		.file 3 "src/../lib/hw.h"
+ 372              		.file 4 "src/../h/MemoryAllocator.hpp"
+ 1664              		.align	3
+ 1667              	DW.ref.__gxx_personality_v0:
+ 1668 0000 00000000 		.dword	__gxx_personality_v0
+ 1668      00000000 
+ 1669              		.ident	"GCC: () 9.3.0"
+GAS LISTING /tmp/cc2CyzAU.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 interruptHandler.cpp
+     /tmp/cc2CyzAU.s:12     .text:0000000000000000 _Znwm
+     /tmp/cc2CyzAU.s:16     .text:0000000000000000 .L0 
+     /tmp/cc2CyzAU.s:18     .text:0000000000000000 .L0 
+     /tmp/cc2CyzAU.s:19     .text:0000000000000004 .L0 
+     /tmp/cc2CyzAU.s:23     .text:0000000000000010 .L0 
+     /tmp/cc2CyzAU.s:24     .text:0000000000000010 .L0 
+     /tmp/cc2CyzAU.s:25     .text:0000000000000010 .L0 
+     /tmp/cc2CyzAU.s:27     .text:0000000000000014 .L0 
+     /tmp/cc2CyzAU.s:30     .text:0000000000000018 .L0 
+     /tmp/cc2CyzAU.s:31     .text:0000000000000018 .L0 
+     /tmp/cc2CyzAU.s:34     .text:0000000000000020 .L0 
+     /tmp/cc2CyzAU.s:38     .text:000000000000002c .L0 
+     /tmp/cc2CyzAU.s:39     .text:0000000000000030 .L0 
+     /tmp/cc2CyzAU.s:41     .text:0000000000000034 .L0 
+     /tmp/cc2CyzAU.s:42     .text:0000000000000034 .L0 
+     /tmp/cc2CyzAU.s:44     .text:0000000000000038 .L0 
+     /tmp/cc2CyzAU.s:47     .text:000000000000003c .L0 
+     /tmp/cc2CyzAU.s:49     .text:0000000000000040 .L0 
+     /tmp/cc2CyzAU.s:55     .text:0000000000000040 _Znam
+     /tmp/cc2CyzAU.s:58     .text:0000000000000040 .L0 
+     /tmp/cc2CyzAU.s:60     .text:0000000000000040 .L0 
+     /tmp/cc2CyzAU.s:61     .text:0000000000000044 .L0 
+     /tmp/cc2CyzAU.s:65     .text:0000000000000050 .L0 
+     /tmp/cc2CyzAU.s:66     .text:0000000000000050 .L0 
+     /tmp/cc2CyzAU.s:67     .text:0000000000000050 .L0 
+     /tmp/cc2CyzAU.s:69     .text:0000000000000054 .L0 
+     /tmp/cc2CyzAU.s:72     .text:0000000000000058 .L0 
+     /tmp/cc2CyzAU.s:73     .text:0000000000000058 .L0 
+     /tmp/cc2CyzAU.s:76     .text:0000000000000060 .L0 
+     /tmp/cc2CyzAU.s:80     .text:000000000000006c .L0 
+     /tmp/cc2CyzAU.s:81     .text:0000000000000070 .L0 
+     /tmp/cc2CyzAU.s:83     .text:0000000000000074 .L0 
+     /tmp/cc2CyzAU.s:84     .text:0000000000000074 .L0 
+     /tmp/cc2CyzAU.s:86     .text:0000000000000078 .L0 
+     /tmp/cc2CyzAU.s:89     .text:000000000000007c .L0 
+     /tmp/cc2CyzAU.s:91     .text:0000000000000080 .L0 
+     /tmp/cc2CyzAU.s:97     .text:0000000000000080 _ZdlPv
+     /tmp/cc2CyzAU.s:100    .text:0000000000000080 .L0 
+     /tmp/cc2CyzAU.s:1667   .sdata.DW.ref.__gxx_personality_v0:0000000000000000 DW.ref.__gxx_personality_v0
+     /tmp/cc2CyzAU.s:104    .text:0000000000000080 .L0 
+     /tmp/cc2CyzAU.s:105    .text:0000000000000084 .L0 
+     /tmp/cc2CyzAU.s:109    .text:0000000000000090 .L0 
+     /tmp/cc2CyzAU.s:110    .text:0000000000000090 .L0 
+     /tmp/cc2CyzAU.s:111    .text:0000000000000090 .L0 
+     /tmp/cc2CyzAU.s:113    .text:0000000000000094 .L0 
+     /tmp/cc2CyzAU.s:116    .text:0000000000000098 .L0 
+     /tmp/cc2CyzAU.s:117    .text:0000000000000098 .L0 
+     /tmp/cc2CyzAU.s:120    .text:00000000000000a0 .L0 
+     /tmp/cc2CyzAU.s:124    .text:00000000000000ac .L0 
+     /tmp/cc2CyzAU.s:125    .text:00000000000000b0 .L0 
+     /tmp/cc2CyzAU.s:127    .text:00000000000000b4 .L0 
+     /tmp/cc2CyzAU.s:128    .text:00000000000000b4 .L0 
+     /tmp/cc2CyzAU.s:130    .text:00000000000000b8 .L0 
+     /tmp/cc2CyzAU.s:133    .text:00000000000000bc .L0 
+     /tmp/cc2CyzAU.s:135    .text:00000000000000c0 .L0 
+GAS LISTING /tmp/cc2CyzAU.s 			page 12
+
+
+     /tmp/cc2CyzAU.s:149    .text:00000000000000c0 _ZdaPv
+     /tmp/cc2CyzAU.s:152    .text:00000000000000c0 .L0 
+     /tmp/cc2CyzAU.s:156    .text:00000000000000c0 .L0 
+     /tmp/cc2CyzAU.s:157    .text:00000000000000c4 .L0 
+     /tmp/cc2CyzAU.s:161    .text:00000000000000d0 .L0 
+     /tmp/cc2CyzAU.s:162    .text:00000000000000d0 .L0 
+     /tmp/cc2CyzAU.s:163    .text:00000000000000d0 .L0 
+     /tmp/cc2CyzAU.s:165    .text:00000000000000d4 .L0 
+     /tmp/cc2CyzAU.s:168    .text:00000000000000d8 .L0 
+     /tmp/cc2CyzAU.s:169    .text:00000000000000d8 .L0 
+     /tmp/cc2CyzAU.s:172    .text:00000000000000e0 .L0 
+     /tmp/cc2CyzAU.s:176    .text:00000000000000ec .L0 
+     /tmp/cc2CyzAU.s:177    .text:00000000000000f0 .L0 
+     /tmp/cc2CyzAU.s:179    .text:00000000000000f4 .L0 
+     /tmp/cc2CyzAU.s:180    .text:00000000000000f4 .L0 
+     /tmp/cc2CyzAU.s:182    .text:00000000000000f8 .L0 
+     /tmp/cc2CyzAU.s:185    .text:00000000000000fc .L0 
+     /tmp/cc2CyzAU.s:187    .text:0000000000000100 .L0 
+     /tmp/cc2CyzAU.s:200    .text:0000000000000100 interruptHandler
+     /tmp/cc2CyzAU.s:204    .text:0000000000000100 .L0 
+     /tmp/cc2CyzAU.s:205    .text:0000000000000100 .L0 
+     /tmp/cc2CyzAU.s:206    .text:0000000000000100 .L0 
+     /tmp/cc2CyzAU.s:207    .text:0000000000000100 .L0 
+     /tmp/cc2CyzAU.s:208    .text:0000000000000100 .L0 
+     /tmp/cc2CyzAU.s:209    .text:0000000000000100 .L0 
+     /tmp/cc2CyzAU.s:210    .text:0000000000000100 .L0 
+src/interruptHandler.cpp:12     .text:0000000000000100 .L0 
+     /tmp/cc2CyzAU.s:217    .text:0000000000000104 .L0 
+src/interruptHandler.cpp:15     .text:0000000000000104 .L0 
+     /tmp/cc2CyzAU.s:222    .text:0000000000000108 .L0 
+src/interruptHandler.cpp:16     .text:0000000000000108 .L0 
+     /tmp/cc2CyzAU.s:227    .text:000000000000010c .L0 
+src/interruptHandler.cpp:17     .text:000000000000010c .L0 
+     /tmp/cc2CyzAU.s:234    .text:0000000000000110 .L0 
+     /tmp/cc2CyzAU.s:235    .text:0000000000000110 .L0 
+     /tmp/cc2CyzAU.s:238    .text:0000000000000114 .L0 
+     /tmp/cc2CyzAU.s:244    .text:0000000000000120 .L0 
+     /tmp/cc2CyzAU.s:245    .text:0000000000000124 .L0 
+     /tmp/cc2CyzAU.s:249    .text:0000000000000130 .L0 
+     /tmp/cc2CyzAU.s:250    .text:0000000000000130 .L0 
+     /tmp/cc2CyzAU.s:251    .text:0000000000000130 .L0 
+     /tmp/cc2CyzAU.s:253    .text:0000000000000134 .L0 
+     /tmp/cc2CyzAU.s:257    .text:0000000000000134 .L0 
+     /tmp/cc2CyzAU.s:258    .text:0000000000000134 .L0 
+src/interruptHandler.cpp:25     .text:0000000000000134 .L0 
+     /tmp/cc2CyzAU.s:266    .text:0000000000000138 .L0 
+     /tmp/cc2CyzAU.s:277    .text:0000000000000150 .L0 
+     /tmp/cc2CyzAU.s:278    .text:0000000000000154 .L0 
+     /tmp/cc2CyzAU.s:279    .text:0000000000000154 .L0 
+     /tmp/cc2CyzAU.s:281    .text:0000000000000158 .L0 
+     /tmp/cc2CyzAU.s:282    .text:0000000000000158 .L0 
+     /tmp/cc2CyzAU.s:284    .text:000000000000015c .L0 
+     /tmp/cc2CyzAU.s:286    .text:0000000000000160 .L0 
+     /tmp/cc2CyzAU.s:290    .text:0000000000000164 .L0 
+     /tmp/cc2CyzAU.s:294    .text:0000000000000164 .L0 
+     /tmp/cc2CyzAU.s:295    .text:0000000000000164 .L0 
+src/interruptHandler.cpp:29     .text:0000000000000164 .L0 
+GAS LISTING /tmp/cc2CyzAU.s 			page 13
+
+
+     /tmp/cc2CyzAU.s:302    .text:0000000000000168 .L0 
+     /tmp/cc2CyzAU.s:304    .text:0000000000000168 .L0 
+     /tmp/cc2CyzAU.s:307    .text:0000000000000170 .L0 
+     /tmp/cc2CyzAU.s:311    .text:000000000000017c .L0 
+src/interruptHandler.cpp:32     .text:000000000000017c .L0 
+     /tmp/cc2CyzAU.s:318    .text:0000000000000180 .L0 
+     /tmp/cc2CyzAU.s:322    .text:0000000000000184 .L0 
+     /tmp/cc2CyzAU.s:323    .text:0000000000000184 .L0 
+src/interruptHandler.cpp:36     .text:0000000000000184 .L0 
+     /tmp/cc2CyzAU.s:330    .text:0000000000000188 .L0 
+     /tmp/cc2CyzAU.s:332    .text:0000000000000188 .L0 
+     /tmp/cc2CyzAU.s:335    .text:0000000000000190 .L0 
+     /tmp/cc2CyzAU.s:339    .text:000000000000019c .L0 
+src/interruptHandler.cpp:40     .text:000000000000019c .L0 
+     /tmp/cc2CyzAU.s:346    .text:00000000000001a0 .L0 
+     /tmp/cc2CyzAU.s:350    .text:00000000000001a4 .L0 
+     /tmp/cc2CyzAU.s:351    .text:00000000000001a4 .L0 
+src/interruptHandler.cpp:45     .text:00000000000001a4 .L0 
+     /tmp/cc2CyzAU.s:358    .text:00000000000001a8 .L0 
+src/interruptHandler.cpp:46     .text:00000000000001a8 .L0 
+     /tmp/cc2CyzAU.s:366    .text:00000000000001ac .L0 
+     /tmp/cc2CyzAU.s:367    .text:00000000000001b0 .L0 
+     /tmp/cc2CyzAU.s:373    .text:00000000000001b0 .L0 
+     /tmp/cc2CyzAU.s:241    .text:0000000000000120 .L17
+     /tmp/cc2CyzAU.s:320    .text:0000000000000184 .L11
+     /tmp/cc2CyzAU.s:348    .text:00000000000001a4 .L12
+     /tmp/cc2CyzAU.s:289    .text:0000000000000164 .L18
+     /tmp/cc2CyzAU.s:273    .text:0000000000000150 .L9
+     /tmp/cc2CyzAU.s:893    .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+     /tmp/cc2CyzAU.s:1545   .debug_str:0000000000000010 .LASF48
+     /tmp/cc2CyzAU.s:1623   .debug_str:000000000000031a .LASF49
+     /tmp/cc2CyzAU.s:1565   .debug_str:0000000000000151 .LASF50
+     /tmp/cc2CyzAU.s:8      .text:0000000000000000 .Ltext0
+     /tmp/cc2CyzAU.s:370    .text:00000000000001b0 .Letext0
+     /tmp/cc2CyzAU.s:1541   .debug_line:0000000000000000 .Ldebug_line0
+     /tmp/cc2CyzAU.s:1605   .debug_str:0000000000000278 .LASF0
+     /tmp/cc2CyzAU.s:1609   .debug_str:000000000000028a .LASF1
+     /tmp/cc2CyzAU.s:1597   .debug_str:0000000000000244 .LASF2
+     /tmp/cc2CyzAU.s:1571   .debug_str:0000000000000194 .LASF3
+     /tmp/cc2CyzAU.s:1583   .debug_str:00000000000001e7 .LASF4
+     /tmp/cc2CyzAU.s:1631   .debug_str:0000000000000390 .LASF5
+     /tmp/cc2CyzAU.s:1547   .debug_str:00000000000000d4 .LASF6
+     /tmp/cc2CyzAU.s:1611   .debug_str:000000000000029d .LASF7
+     /tmp/cc2CyzAU.s:1603   .debug_str:0000000000000265 .LASF8
+     /tmp/cc2CyzAU.s:1649   .debug_str:000000000000040a .LASF9
+     /tmp/cc2CyzAU.s:1581   .debug_str:00000000000001d9 .LASF10
+     /tmp/cc2CyzAU.s:1617   .debug_str:00000000000002e0 .LASF11
+     /tmp/cc2CyzAU.s:1647   .debug_str:00000000000003fb .LASF12
+     /tmp/cc2CyzAU.s:1549   .debug_str:00000000000000db .LASF13
+     /tmp/cc2CyzAU.s:1543   .debug_str:0000000000000000 .LASF14
+     /tmp/cc2CyzAU.s:1553   .debug_str:00000000000000f7 .LASF15
+     /tmp/cc2CyzAU.s:1627   .debug_str:0000000000000350 .LASF16
+     /tmp/cc2CyzAU.s:1559   .debug_str:000000000000012e .LASF17
+     /tmp/cc2CyzAU.s:1587   .debug_str:0000000000000212 .LASF51
+     /tmp/cc2CyzAU.s:1555   .debug_str:0000000000000103 .LASF18
+     /tmp/cc2CyzAU.s:1659   .debug_str:0000000000000453 .LASF19
+     /tmp/cc2CyzAU.s:1655   .debug_str:0000000000000447 .LASF20
+GAS LISTING /tmp/cc2CyzAU.s 			page 14
+
+
+     /tmp/cc2CyzAU.s:1573   .debug_str:000000000000019a .LASF21
+     /tmp/cc2CyzAU.s:1591   .debug_str:0000000000000221 .LASF32
+     /tmp/cc2CyzAU.s:1645   .debug_str:00000000000003ef .LASF52
+     /tmp/cc2CyzAU.s:1585   .debug_str:00000000000001ee .LASF53
+     /tmp/cc2CyzAU.s:1601   .debug_str:000000000000025c .LASF22
+     /tmp/cc2CyzAU.s:1651   .debug_str:000000000000041a .LASF24
+     /tmp/cc2CyzAU.s:1643   .debug_str:00000000000003e1 .LASF23
+     /tmp/cc2CyzAU.s:1621   .debug_str:00000000000002f4 .LASF25
+     /tmp/cc2CyzAU.s:1625   .debug_str:0000000000000333 .LASF26
+     /tmp/cc2CyzAU.s:1635   .debug_str:00000000000003b2 .LASF27
+     /tmp/cc2CyzAU.s:1577   .debug_str:00000000000001a4 .LASF28
+     /tmp/cc2CyzAU.s:1561   .debug_str:0000000000000144 .LASF29
+     /tmp/cc2CyzAU.s:1557   .debug_str:000000000000010f .LASF30
+     /tmp/cc2CyzAU.s:1569   .debug_str:000000000000017b .LASF34
+     /tmp/cc2CyzAU.s:1563   .debug_str:000000000000014c .LASF31
+     /tmp/cc2CyzAU.s:1637   .debug_str:00000000000003bf .LASF33
+     /tmp/cc2CyzAU.s:1629   .debug_str:0000000000000366 .LASF35
+     /tmp/cc2CyzAU.s:1599   .debug_str:0000000000000252 .LASF54
+     /tmp/cc2CyzAU.s:1613   .debug_str:00000000000002b0 .LASF55
+     /tmp/cc2CyzAU.s:1575   .debug_str:000000000000019f .LASF36
+     /tmp/cc2CyzAU.s:1567   .debug_str:000000000000016a .LASF56
+     /tmp/cc2CyzAU.s:201    .text:0000000000000100 .LFB21
+     /tmp/cc2CyzAU.s:368    .text:00000000000001b0 .LFE21
+     /tmp/cc2CyzAU.s:1551   .debug_str:00000000000000eb .LASF37
+     /tmp/cc2CyzAU.s:1391   .debug_loc:0000000000000000 .LLST4
+     /tmp/cc2CyzAU.s:1619   .debug_str:00000000000002ef .LASF38
+     /tmp/cc2CyzAU.s:1404   .debug_loc:0000000000000038 .LLST5
+     /tmp/cc2CyzAU.s:1641   .debug_str:00000000000003dc .LASF39
+     /tmp/cc2CyzAU.s:1415   .debug_loc:000000000000006e .LLST6
+     /tmp/cc2CyzAU.s:1593   .debug_str:0000000000000231 .LASF40
+     /tmp/cc2CyzAU.s:1422   .debug_loc:0000000000000091 .LLST7
+     /tmp/cc2CyzAU.s:1533   .debug_ranges:0000000000000000 .Ldebug_ranges0
+     /tmp/cc2CyzAU.s:1607   .debug_str:0000000000000285 .LASF41
+     /tmp/cc2CyzAU.s:1429   .debug_loc:00000000000000b4 .LLST8
+     /tmp/cc2CyzAU.s:305    .text:0000000000000170 .LVL22
+     /tmp/cc2CyzAU.s:309    .text:000000000000017c .LVL23
+     /tmp/cc2CyzAU.s:333    .text:0000000000000190 .LVL26
+     /tmp/cc2CyzAU.s:337    .text:000000000000019c .LVL27
+     /tmp/cc2CyzAU.s:1639   .debug_str:00000000000003c9 .LASF42
+     /tmp/cc2CyzAU.s:1657   .debug_str:000000000000044c .LASF43
+     /tmp/cc2CyzAU.s:150    .text:00000000000000c0 .LFB20
+     /tmp/cc2CyzAU.s:188    .text:0000000000000100 .LFE20
+     /tmp/cc2CyzAU.s:1448   .debug_loc:0000000000000110 .LLST3
+     /tmp/cc2CyzAU.s:170    .text:00000000000000e0 .LVL13
+     /tmp/cc2CyzAU.s:174    .text:00000000000000ec .LVL14
+     /tmp/cc2CyzAU.s:1633   .debug_str:00000000000003a2 .LASF44
+     /tmp/cc2CyzAU.s:1595   .debug_str:000000000000023d .LASF45
+     /tmp/cc2CyzAU.s:98     .text:0000000000000080 .LFB19
+     /tmp/cc2CyzAU.s:136    .text:00000000000000c0 .LFE19
+     /tmp/cc2CyzAU.s:1466   .debug_loc:000000000000015c .LLST2
+     /tmp/cc2CyzAU.s:118    .text:00000000000000a0 .LVL9
+     /tmp/cc2CyzAU.s:122    .text:00000000000000ac .LVL10
+     /tmp/cc2CyzAU.s:1579   .debug_str:00000000000001c9 .LASF57
+     /tmp/cc2CyzAU.s:1615   .debug_str:00000000000002da .LASF58
+     /tmp/cc2CyzAU.s:56     .text:0000000000000040 .LFB18
+     /tmp/cc2CyzAU.s:92     .text:0000000000000080 .LFE18
+     /tmp/cc2CyzAU.s:1484   .debug_loc:00000000000001a8 .LLST1
+GAS LISTING /tmp/cc2CyzAU.s 			page 15
+
+
+     /tmp/cc2CyzAU.s:74     .text:0000000000000060 .LVL5
+     /tmp/cc2CyzAU.s:78     .text:000000000000006c .LVL6
+     /tmp/cc2CyzAU.s:1653   .debug_str:000000000000043a .LASF46
+     /tmp/cc2CyzAU.s:1589   .debug_str:000000000000021b .LASF47
+     /tmp/cc2CyzAU.s:13     .text:0000000000000000 .LFB17
+     /tmp/cc2CyzAU.s:50     .text:0000000000000040 .LFE17
+     /tmp/cc2CyzAU.s:1502   .debug_loc:00000000000001f4 .LLST0
+     /tmp/cc2CyzAU.s:32     .text:0000000000000020 .LVL1
+     /tmp/cc2CyzAU.s:36     .text:000000000000002c .LVL2
+     /tmp/cc2CyzAU.s:215    .text:0000000000000104 .LVL16
+     /tmp/cc2CyzAU.s:236    .text:0000000000000114 .LVL17
+     /tmp/cc2CyzAU.s:263    .text:0000000000000138 .LVL18
+     /tmp/cc2CyzAU.s:319    .text:0000000000000184 .LVL24
+     /tmp/cc2CyzAU.s:328    .text:0000000000000188 .LVL25
+     /tmp/cc2CyzAU.s:347    .text:00000000000001a4 .LVL28
+     /tmp/cc2CyzAU.s:300    .text:0000000000000168 .LVL21
+     /tmp/cc2CyzAU.s:272    .text:0000000000000150 .LVL19
+     /tmp/cc2CyzAU.s:288    .text:0000000000000164 .LVL20
+     /tmp/cc2CyzAU.s:356    .text:00000000000001a8 .LVL29
+     /tmp/cc2CyzAU.s:155    .text:00000000000000c0 .LVL12
+     /tmp/cc2CyzAU.s:183    .text:00000000000000f8 .LVL15
+     /tmp/cc2CyzAU.s:103    .text:0000000000000080 .LVL8
+     /tmp/cc2CyzAU.s:131    .text:00000000000000b8 .LVL11
+     /tmp/cc2CyzAU.s:59     .text:0000000000000040 .LVL4
+     /tmp/cc2CyzAU.s:87     .text:0000000000000078 .LVL7
+     /tmp/cc2CyzAU.s:17     .text:0000000000000000 .LVL0
+     /tmp/cc2CyzAU.s:45     .text:0000000000000038 .LVL3
+     /tmp/cc2CyzAU.s:374    .debug_info:0000000000000000 .Ldebug_info0
+     /tmp/cc2CyzAU.s:255    .text:0000000000000134 .LBB3
+     /tmp/cc2CyzAU.s:274    .text:0000000000000150 .LBE3
+     /tmp/cc2CyzAU.s:292    .text:0000000000000164 .LBB4
+     /tmp/cc2CyzAU.s:363    .text:00000000000001ac .LBE4
+     /tmp/cc2CyzAU.s:139    .gcc_except_table:0000000000000000 .LLSDA19
+     /tmp/cc2CyzAU.s:190    .gcc_except_table:0000000000000004 .LLSDA20
+
+UNDEFINED SYMBOLS
+_ZN15MemoryAllocator11getInstanceEv
+_ZN15MemoryAllocator8memAllocEm
+_ZN15MemoryAllocator4freeEPv
+__gxx_personality_v0
