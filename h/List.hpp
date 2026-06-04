@@ -62,7 +62,7 @@ public:
     }
     T *peekLast(){
         if(!tail) {return 0;}
-        return tail->next;
+        return tail->data;
     }
 private:
     struct Elem{

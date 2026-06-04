@@ -2,6 +2,7 @@
 #define SCHEDULER_HPP
 
 #include "List.hpp"
+#include "MemoryAllocator.hpp"
 
 class TCB;
 
@@ -11,7 +12,6 @@ public:
     static void put(TCB *thread);
     static TCB* get();
 private:
-
     Scheduler();
     static List<TCB> ready;
 };

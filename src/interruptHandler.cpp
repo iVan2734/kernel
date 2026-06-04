@@ -40,11 +40,19 @@ extern "C" void interruptHandler() {
                 __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
                 break;
 
+            //thread_create
 			case 0x011:
 				//I dont know if I should I allocate here the stack for the thread on in the syscall_c file where the C call is located
 				__asm__ volatile ("mv %0, a1" : "=r" (addr));
 				__asm__ volatile ("mv %0, a2" : "=r" (addr));
 
+                break;
+            //thread_exit
+            case 0x012:
+                break;
+            //thread_dispatch
+            case 0x013:
+                break;
 
         }
     }

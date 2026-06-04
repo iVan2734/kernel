@@ -11,7 +11,7 @@ public:
     ~TCB(){ delete[] stack;}
     using Body = void (*)();
     static TCB *create_thread(Body body);
-    uint64 getTimeSlice() const{ return timeSlice;}
+    //uint64 getTimeSlice() const{ return timeSlice;}
 
     bool isFinished() const {return finished;}
     void setFinished(bool finished){this->finished=finished;}
@@ -40,34 +40,35 @@ private:
     uint64 *stack;
     Context context;
     bool finished;
-    uint64 timeSlice;
+    //uint64 timeSlice;
 
-    friend class Riscv;
+    //friend class Riscv;
 
-    static void threadWrapper();
+    //static void threadWrapper();
     static void contextSwitch(Context *oldContext,Context *newContext);
     static void dispatch();
 
-    static uint64 timeSliceCounter;
+    //static uint64 timeSliceCounter;
 
     static uint64 constexpr STACK_SIZE=1024;
-    static uint64 constexpr TIME_SLICE=2;
+    //static uint64 constexpr TIME_SLICE=2;
 };
 
-void *operator new(uint64 n){
+void* operator new(uint64 n){
     return MemoryAllocator::getInstance().memAlloc(n);
 }
 
 
-void *operator new[](uint64 n){
+void* operator new[](uint64 n){
     return MemoryAllocator::getInstance().memAlloc(n);
 }
 
-void operator delete(void *p) noexcept{
+void operator delete(void *p) noexcept {
     MemoryAllocator::getInstance().free(p);
 }
 
-void operator delete[](void *p) noexcept{
+void operator delete[](void *p) noexcept {
     MemoryAllocator::getInstance().free(p);
 }
+
 #endif

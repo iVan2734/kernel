@@ -18,8 +18,8 @@ public:
     int free(void* fragment);
 
     //extra
-    void* bestFitAlloc();
-    void* compact();
+    //void* bestFitAlloc();
+    //void* compact();
 
 private:
 
