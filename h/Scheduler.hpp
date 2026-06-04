@@ -13,7 +13,7 @@ public:
     static TCB* get();
 private:
     Scheduler();
-    static List<TCB> ready;
+    List<TCB> ready;
 };
 
 #endif

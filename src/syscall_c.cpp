@@ -57,7 +57,4 @@ int thread_exit(){
 void thread_dispatch(){
     __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt) );
     __asm__ volatile("ecall");
-    uint64 returnValue;
-    __asm__ volatile("mv %0, a1" : "=r" (returnValue));
-    return returnValue;
 }

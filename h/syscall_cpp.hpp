@@ -3,8 +3,8 @@
 
 #include "syscall_c.hpp"
 
-void* ::operator new (size_t);
-void ::operator delete (void*);
+//void* ::operator new (size_t);
+//void ::operator delete (void*);
 
 class Thread {
 public:

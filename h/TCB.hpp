@@ -2,9 +2,7 @@
 #define TCB_HPP
 
 #include "../lib/hw.h"
-#include "MemoryAllocator.hpp"
 #include "Scheduler.hpp"
-
 
 class TCB{
 public:
@@ -20,17 +18,7 @@ public:
     static TCB *running;
 
 private:
-    TCB(Body body):
-    body(body),
-    stack(body!=nullptr ? new uint64[STACK_SIZE] : nullptr),
-    context({
-        body!=nullptr ? (uint64) body : 0,
-        stack!=nullptr ? (uint64) &stack[STACK_SIZE] : 0
-    }),
-    finished(false)
-    {
-        if(body!=nullptr) Scheduler::getInstance().put(this);
-    }
+    explicit TCB(Body body);
 
     struct Context{
         uint64 ra;
@@ -54,21 +42,7 @@ private:
     //static uint64 constexpr TIME_SLICE=2;
 };
 
-void* operator new(uint64 n){
-    return MemoryAllocator::getInstance().memAlloc(n);
-}
 
 
-void* operator new[](uint64 n){
-    return MemoryAllocator::getInstance().memAlloc(n);
-}
-
-void operator delete(void *p) noexcept {
-    MemoryAllocator::getInstance().free(p);
-}
-
-void operator delete[](void *p) noexcept {
-    MemoryAllocator::getInstance().free(p);
-}
 
 #endif

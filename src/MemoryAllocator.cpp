@@ -106,6 +106,23 @@ void MemoryAllocator::mergeNext(Fragment *fragment) {
     }
 }
 
+
+void* operator new(uint64 n){
+    return MemoryAllocator::getInstance().memAlloc(n);
+}
+
+
+void* operator new[](uint64 n){
+    return MemoryAllocator::getInstance().memAlloc(n);
+}
+
+void operator delete(void *p) noexcept {
+    MemoryAllocator::getInstance().free(p);
+}
+void operator delete[](void *p) noexcept {
+    MemoryAllocator::getInstance().free(p);
+}
+
 /*
 void memoryAllocatorTest() {
 __putc('S');
