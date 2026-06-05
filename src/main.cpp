@@ -122,7 +122,7 @@ void memoryAllocatorTest() {
     }
     mem_free(a);
     __putc('F');
-    void* p=mem_alloc(64);
+    void* p=mem_alloc(20);
     if (p==a) {
         __putc('M');
     }
@@ -133,6 +133,6 @@ void memoryAllocatorTest() {
 
 int main(){
     //Riscv::enableInterrupts();
-    memoryAllocatorTest();
+    Threads_C_API_test();
     return 0;
 }

@@ -14,7 +14,8 @@ TCB::TCB(Body body,void* args):
     finished(false),
     args(args)
 {
-    if(body!=nullptr) Scheduler::getInstance().put(this);
+    //if (TCB::running==nullptr) TCB::running=this;
+    Scheduler::getInstance().put(this);
 }
 
 TCB *TCB::create_thread(Body body,void *args) {
@@ -22,7 +23,11 @@ TCB *TCB::create_thread(Body body,void *args) {
 }
 
 void TCB::dispatch(){
+    if (running==nullptr) {
+        running=TCB::create_thread(nullptr,nullptr);
+    }
     TCB *old=running;
+
     if(!old->isFinished()){ Scheduler::getInstance().put(old); }
     running=Scheduler::getInstance().get();
     TCB::contextSwitch(&old->context,&running->context);
@@ -44,7 +49,10 @@ int TCB::thread_exit(){
 }
 
 void TCB::threadWrapper(){
-    //Riscv::popSppSpie(); I dont knwo what is this line doing
+    //Riscv::popSppSpie(); I dont know what is this line doing
+    //__asm__ volatile("csrw sepc,ra");
+    //__asm__ volatile("sret");
+    //This two lines above are supposed to do the same thing as popSppSpie()
     running->body(running->args);
     running->setFinished(true);
     TCB::yield();

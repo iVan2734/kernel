@@ -21,12 +21,13 @@ extern "C" void interruptHandler() {
     // It should be 8 but I am testing now in unsupervised regime
     if (scauseValue == 0x0000000000000009UL || scauseValue == 0x0000000000000008UL) {
         //big swittch with C API codes
-        //Increment PC
-        __asm__ volatile("csrr t0,sepc");
-        __asm__ volatile("addi t0,t0,4");
-        __asm__ volatile("csrw sepc,t0");
 
+        uint64 a1,a2,a3;
         __asm__ volatile("mv %0, a0" : "=r" (code) );
+        __asm__ volatile ("mv %0, a1" : "=r" (a1));
+        __asm__ volatile ("mv %0, a2" : "=r" (a2));
+        __asm__ volatile ("mv %0, a3" : "=r" (a3));
+
         switch (code) {
             case 0x01:
                 //write from a1 to size
@@ -46,12 +47,11 @@ extern "C" void interruptHandler() {
 
             //thread_create
 			case 0x011:
-				//I dont know if I should I allocate here the stack for the thread on in the syscall_c file where the C call is located
-				__asm__ volatile ("mv %0, a1" : "=r" (handle));
-				__asm__ volatile ("mv %0, a2" : "=r" (start_routine));
-                __asm__ volatile ("mv %0, a3" : "=r" (arg));
+				handle=(thread_t*)a1;
+                start_routine=(TCB::Body)a2;
+                arg=(void*)a3;
                 *handle=(thread_t)TCB::create_thread(start_routine,arg);
-                if(handle!=nullptr)  returnValue=-1;
+                if(handle==nullptr) returnValue=-1;
                 else returnValue=0;
                 __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
                 break;
@@ -66,6 +66,11 @@ extern "C" void interruptHandler() {
                 break;
 
         }
+        //Increment PC
+        uint64 sepc;
+        __asm__ volatile("csrr %0,sepc" : "=r"(sepc));
+        __asm__ volatile("csrw sepc,%0" : : "r"(sepc+4));
+
     }
     else if(scauseValue==0x8000000000000001UL){
         //timer interrupt

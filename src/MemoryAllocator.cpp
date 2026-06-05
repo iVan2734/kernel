@@ -78,8 +78,8 @@ int MemoryAllocator::free(void *fragment) {
                 curr->free=1;
                 mergeNext(curr);
                 mergePrev(curr);
-                __putc('W');
-                __putc('W');
+                //__putc('W');
+                //__putc('W');
                 return 0;
             }
         }
