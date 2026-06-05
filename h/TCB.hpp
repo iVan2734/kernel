@@ -7,7 +7,7 @@
 class TCB{
 public:
     ~TCB(){ delete[] stack;}
-    using Body = void (*)();
+    using Body = void (*)(void *);
     static TCB *create_thread(Body body);
     //uint64 getTimeSlice() const{ return timeSlice;}
 
@@ -15,10 +15,11 @@ public:
     void setFinished(bool finished){this->finished=finished;}
 
     static void yield();
+    static int thread_exit();
     static TCB *running;
 
 private:
-    explicit TCB(Body body);
+    explicit TCB(Body body,void *args);
 
     struct Context{
         uint64 ra;
@@ -28,21 +29,19 @@ private:
     uint64 *stack;
     Context context;
     bool finished;
+
+    void  *args;
     //uint64 timeSlice;
 
-    //friend class Riscv;
+    friend class Riscv;
 
-    //static void threadWrapper();
+    static void threadWrapper();
     static void contextSwitch(Context *oldContext,Context *newContext);
     static void dispatch();
 
     //static uint64 timeSliceCounter;
-
     static uint64 constexpr STACK_SIZE=1024;
     //static uint64 constexpr TIME_SLICE=2;
 };
-
-
-
 
 #endif

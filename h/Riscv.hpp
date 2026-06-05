@@ -44,9 +44,30 @@ public:
     static void mc_sstatus(uint64 mask);
     static uint64 r_sstatus();
     static void w_sstatus(uint64 sstatus);
+
+    void enableInterrupts();
+    void disableInterrupts();
+
 private:
 
 };
+
+inline void Riscv::enableInterrupts(){
+    //this sets SIE which is second bit to 1
+    uint64 volatile sstatus;
+    __asm__ volatile("csrr %[sstatus], sstatus":[sstatus] "=r"(sstatus));
+    sstatus|=(1UL<<1);
+    __asm__ volatile ("csrw sstatus, %[sstatus]" : : [sstatus] "r"(sstatus));
+}
+
+inline void Riscv::disableInterrupts(){
+    //this sets SIE which is second bit to 0
+    uint64 volatile sstatus;
+    __asm__ volatile("csrr %[sstatus], sstatus":[sstatus] "=r"(sstatus));
+    sstatus&=~(1UL<<1);
+    __asm__ volatile ("csrw sstatus, %[sstatus]" : : [sstatus] "r"(sstatus));
+}
+
 
 inline uint64 Riscv::r_scause(){
     uint64 volatile scause;

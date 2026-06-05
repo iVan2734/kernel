@@ -65,6 +65,10 @@ public:
         if(!tail) {return 0;}
         return tail->data;
     }
+
+    bool empty(){
+        return head ? false : true;
+    }
 private:
     struct Elem{
         T *data;

@@ -4,20 +4,21 @@
 
 TCB *TCB::running=nullptr;
 
- TCB::TCB(Body body):
+ TCB::TCB(Body body,args):
     body(body),
     stack(body!=nullptr ? new uint64[STACK_SIZE] : nullptr),
     context({
-        body!=nullptr ? (uint64) body : 0,
+        body!=nullptr ? (uint64) &threadWrapper : 0,
         stack!=nullptr ? (uint64) &stack[STACK_SIZE] : 0
     }),
-    finished(false)
+    finished(false),
+    args(args)
 {
     if(body!=nullptr) Scheduler::getInstance().put(this);
 }
 
-TCB *TCB::create_thread(Body body) {
-    return new TCB(body);
+TCB *TCB::create_thread(Body body,void *args) {
+    return new TCB(body,args);
 }
 
 void TCB::dispatch(){
@@ -31,4 +32,18 @@ void TCB::yield(){
     Riscv::pushRegisters();
     TCB::dispatch();
     Riscv::popRegisters();
+}
+
+int TCB::thread_exit(){
+    TCB* old=TCB::running;
+    running=Scheduler::getInstance().get();
+    TCB::contextSwitch(&old->context,%running->context);
+    delete old;
+}
+
+void TCB::threadWrapper(){
+    //Riscv::popSppSpie(); I dont knwo what is this line doing
+    running->body(running->args);
+    running->setFinished(true);
+    TCB::yield();
 }

@@ -1,7 +1,7 @@
-#include "../h/TCB.hpp"
 #include "../lib/hw.h"
-#include "../h/printHelper.hpp"
+#include "../test/userMain.cpp"
 
+/*
 uint64 fibonacci(uint64 n) {
     if (n == 0 || n == 1) { return n; }
     if (n % 4 == 0) TCB::yield();
@@ -74,4 +74,10 @@ int main() {
 
     return 0;
 
+}
+*/
+
+int main(){
+    Riscv::enableInterrupts();
+    userMain();
 }
