@@ -17,15 +17,15 @@ extern "C" void interruptHandler() {
 
     __asm__ volatile("csrr %[scause], scause": [scause] "=r" (scauseValue));
 
-    //Increment PC
-    __asm__ volatile("csrr t0,sepc");
-    __asm__ volatile("addi t0,t0,4");
-    __asm__ volatile("csrw sepc,t0");
-
     //I was stupid becusae I am calling form privilege regime so that's why its 9 instead of 8 I need to go back to user Regime and call all those things
     // It should be 8 but I am testing now in unsupervised regime
-    if (scauseValue == 0x0000000000000009UL || scauseValue == 0x0000000000000009UL) {
+    if (scauseValue == 0x0000000000000009UL || scauseValue == 0x0000000000000008UL) {
         //big swittch with C API codes
+        //Increment PC
+        __asm__ volatile("csrr t0,sepc");
+        __asm__ volatile("addi t0,t0,4");
+        __asm__ volatile("csrw sepc,t0");
+
         __asm__ volatile("mv %0, a0" : "=r" (code) );
         switch (code) {
             case 0x01:
