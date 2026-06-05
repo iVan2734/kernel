@@ -22,10 +22,9 @@ extern "C" void interruptHandler() {
     __asm__ volatile("addi t0,t0,4");
     __asm__ volatile("csrw sepc,t0");
 
-    //I was stupid becusae I am calling form privilege regime so thats why its 9 instead of 8 I need to go back to user Regime and call all those things
+    //I was stupid becusae I am calling form privilege regime so that's why its 9 instead of 8 I need to go back to user Regime and call all those things
     // It should be 8 but I am testing now in unsupervised regime
     if (scauseValue == 0x0000000000000009UL || scauseValue == 0x0000000000000009UL) {
-        //ecall iz korisnickog rezima
         //big swittch with C API codes
         __asm__ volatile("mv %0, a0" : "=r" (code) );
         switch (code) {
