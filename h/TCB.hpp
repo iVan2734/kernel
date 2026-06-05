@@ -8,13 +8,14 @@ class TCB{
 public:
     ~TCB(){ delete[] stack;}
     using Body = void (*)(void *);
-    static TCB *create_thread(Body body);
+    static TCB *create_thread(Body body,void* args);
     //uint64 getTimeSlice() const{ return timeSlice;}
 
     bool isFinished() const {return finished;}
     void setFinished(bool finished){this->finished=finished;}
 
     static void yield();
+    static void dispatch();
     static int thread_exit();
     static TCB *running;
 
@@ -37,7 +38,6 @@ private:
 
     static void threadWrapper();
     static void contextSwitch(Context *oldContext,Context *newContext);
-    static void dispatch();
 
     //static uint64 timeSliceCounter;
     static uint64 constexpr STACK_SIZE=1024;

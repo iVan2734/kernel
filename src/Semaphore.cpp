@@ -1,5 +1,5 @@
-#include "..h/Semaphore.hpp"
-
+#include "../h/Semaphore.hpp"
+/*
 Semaphore::Semaphore(unsigned init):val(init){}
 
 Semaphore::~Semaphore(){
@@ -58,4 +58,4 @@ void Semaphore::signal(int n){
     unlock();
 }
 
-
+*/

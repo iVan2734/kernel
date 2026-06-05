@@ -3,7 +3,7 @@
 
 #include "List.hpp"
 #include "Riscv.hpp"
-#Include "Scheduler.hpp"
+#include "Scheduler.hpp"
 
 class Semaphore{
 public:
@@ -28,7 +28,7 @@ private:
     List<TCB*> blocked;
     int val;
 };
-
+/*
 inline void lock(){
     Riscv::disableInterrupts();
 }
@@ -36,4 +36,5 @@ inline void lock(){
 inline void unlock(){
     Riscv::enableInterrupts();
 }
+*/
 #endif

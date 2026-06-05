@@ -4,7 +4,7 @@
 
 TCB *TCB::running=nullptr;
 
- TCB::TCB(Body body,args):
+TCB::TCB(Body body,void* args):
     body(body),
     stack(body!=nullptr ? new uint64[STACK_SIZE] : nullptr),
     context({
@@ -35,10 +35,12 @@ void TCB::yield(){
 }
 
 int TCB::thread_exit(){
+    if (!TCB::running) return -1;
     TCB* old=TCB::running;
     running=Scheduler::getInstance().get();
-    TCB::contextSwitch(&old->context,%running->context);
+    TCB::contextSwitch(&old->context,&running->context);
     delete old;
+    return 0;
 }
 
 void TCB::threadWrapper(){
