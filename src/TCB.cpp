@@ -15,7 +15,7 @@ TCB::TCB(Body body,void* args):
     args(args)
 {
     //if (TCB::running==nullptr) TCB::running=this;
-    Scheduler::getInstance().put(this);
+    if (body!=nullptr) Scheduler::getInstance().put(this);
 }
 
 TCB *TCB::create_thread(Body body,void *args) {
@@ -55,5 +55,5 @@ void TCB::threadWrapper(){
     //This two lines above are supposed to do the same thing as popSppSpie()
     running->body(running->args);
     running->setFinished(true);
-    TCB::yield();
+    TCB::dispatch();
 }
