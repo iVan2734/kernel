@@ -8,6 +8,7 @@ class TCB{
 public:
     ~TCB(){ delete[] stack;}
     using Body = void (*)(void *);
+    void idleBody(void*);
     static TCB *create_thread(Body body,void* args);
     //uint64 getTimeSlice() const{ return timeSlice;}
 
