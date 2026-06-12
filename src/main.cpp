@@ -3,6 +3,7 @@
 #include "../lib/console.h"
 #include "../h/syscall_c.hpp"
 #include "../h/printHelper.hpp"
+#include "userMain.cpp"
 
 static volatile bool finishedA = false;
 static volatile bool finishedB = false;
@@ -111,6 +112,7 @@ void Threads_C_API_test() {
 }
 
 int main(){
-    Threads_C_API_test();
+    thread_t mainThread;
+    thread_create(&mainThread,&userMain,nullptr);
     return 0;
 }
