@@ -105,7 +105,6 @@ void Threads_C_API_test() {
     while (!(finishedA && finishedB && finishedC && finishedD)) {
         thread_dispatch();
     }
-
 }
 
 void userMain(void* nothing) {

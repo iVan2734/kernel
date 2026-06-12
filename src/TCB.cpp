@@ -27,8 +27,6 @@ void TCB::dispatch(){
         running=TCB::create_thread(nullptr,nullptr);
     }
     TCB *old=running;
-
-
     if(!old->isFinished()){ Scheduler::getInstance().put(old); }
     running=Scheduler::getInstance().get();
     TCB::contextSwitch(&old->context,&running->context);
@@ -50,17 +48,8 @@ int TCB::thread_exit(){
 }
 
 void TCB::threadWrapper(){
-    Riscv::popSppSpie();
-    //__asm__ volatile("csrw sepc,ra");
-    //__asm__ volatile("sret");
-    //This two lines above are supposed to do the same thing as popSppSpie()
+    //Riscv::popSppSpie();
     running->body(running->args);
     running->setFinished(true);
     TCB::dispatch();
-}
-
-void TCB::idleThread(void*){
-    while(true) {
-        dispatch();
-    }
 }

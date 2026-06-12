@@ -48,14 +48,9 @@ public:
     static void enableInterrupts();
     static void disableInterrupts();
     static void popSppSpie();
-
-
-private:
-
 };
 
 inline void Riscv::enableInterrupts(){
-    //this sets SIE which is second bit to 1
     uint64 volatile sstatus;
     __asm__ volatile("csrr %[sstatus], sstatus":[sstatus] "=r"(sstatus));
     sstatus|=(1UL<<1);
@@ -63,7 +58,6 @@ inline void Riscv::enableInterrupts(){
 }
 
 inline void Riscv::disableInterrupts(){
-    //this sets SIE which is second bit to 0
     uint64 volatile sstatus;
     __asm__ volatile("csrr %[sstatus], sstatus":[sstatus] "=r"(sstatus));
     sstatus&=~(1UL<<1);
@@ -112,11 +106,6 @@ inline void Riscv::w_stval(uint64 stval){
 }
 
 inline void Riscv::popSppSpie() {
-    uint64 sstatus;
-    __asm__ volatile ("csrr %0, sstatus" : "=r"(sstatus));
-    sstatus &= ~(1UL << 8);
-    sstatus |=  (1UL << 5);
-    __asm__ volatile ("csrw sstatus, %0" : : "r"(sstatus));
     __asm__ volatile ("csrw sepc, ra");
     __asm__ volatile ("sret");
 }

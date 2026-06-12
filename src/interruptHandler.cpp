@@ -1,7 +1,7 @@
 #include "../lib/hw.h"
 #include "../h/MemoryAllocator.hpp"
 #include "../h/TCB.hpp"
-
+#include "../h/printHelper.hpp"
 class _thread;
 typedef _thread* thread_t;
 
@@ -22,11 +22,7 @@ extern "C" void interruptHandler() {
     __asm__ volatile("csrr %[sstatus], sstatus": [sstatus] "=r" (sstatus));
     __asm__ volatile("csrr %[scause], scause": [scause] "=r" (scauseValue));
 
-
-    //I was stupid becusae I am calling form privilege regime so that's why its 9 instead of 8 I need to go back to user Regime and call all those things
-    // It should be 8 but I am testing now in unsupervised regime
     if (scauseValue == 0x0000000000000009UL || scauseValue == 0x0000000000000008UL) {
-        //big swittch with C API codes
 
         uint64 a1,a2,a3;
         __asm__ volatile ("mv %0, a0" : "=r" (code) );
@@ -36,23 +32,16 @@ extern "C" void interruptHandler() {
 
         switch (code) {
             case 0x01:
-                //write from a1 to size
                 __asm__ volatile ("mv %0, a1" : "=r" (size) );
                 addr=MemoryAllocator::getInstance().memAlloc(size);
-                //write to a0 return value
                 __asm__ volatile ("mv a0, %0" : : "r" (addr));
                 break;
             case 0x02:
-                //write from a1 to addr
                 __asm__ volatile ("mv %0, a1" : "=r" (addr));
-
                 returnValue=MemoryAllocator::getInstance().free(addr);
-                //write to a0 return value
                 __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
                 break;
-
-            //thread_create
-			case 0x011:
+            case 0x011:
 				handle=(thread_t*)a1;
                 start_routine=(TCB::Body)a2;
                 arg=(void*)a3;
@@ -78,12 +67,28 @@ extern "C" void interruptHandler() {
     }
     else if(scauseValue==0x8000000000000001UL){
         //timer interrupt
+        uint64 stval;
+        printString("Timer interrupt");
+        printString("Scause= ");
+        printInteger(scauseValue);
+        printString("Sepc= ");
+        printInteger(sepc);
+        __asm__ volatile("csrr %0,stval" : "=r"(stval));
+        while (true);
     }
     else if(scauseValue == 0x8000000000000009UL){
         //keyboard interrupt
     }
     else{
         //Unexpected interrupt
+        uint64 stval;
+        printString("Timer interrupt");
+        printString("Scause= ");
+        printInteger(scauseValue);
+        printString("Sepc= ");
+        printInteger(sepc);
+        __asm__ volatile("csrr %0,stval" : "=r"(stval));
+        while (true);
     }
 }
 
