@@ -1,6 +1,4 @@
 #include "../lib/hw.h"
-#include "../h/Riscv.hpp"
-#include "../lib/console.h"
 #include "../h/syscall_c.hpp"
 #include "../h/printHelper.hpp"
 
@@ -109,7 +107,6 @@ void Threads_C_API_test() {
     }
 
 }
-
 
 void userMain(void* nothing) {
     Threads_C_API_test();

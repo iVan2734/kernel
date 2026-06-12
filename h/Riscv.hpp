@@ -45,8 +45,10 @@ public:
     static uint64 r_sstatus();
     static void w_sstatus(uint64 sstatus);
 
-    void enableInterrupts();
-    void disableInterrupts();
+    static void enableInterrupts();
+    static void disableInterrupts();
+    static void popSppSpie();
+
 
 private:
 
