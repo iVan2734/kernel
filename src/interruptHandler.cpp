@@ -7,6 +7,9 @@ typedef _thread* thread_t;
 
 extern "C" void interruptHandler() {
     uint64 scauseValue;
+	uint64 sepc;
+	uint64 sstatus;
+
     void* addr;
     size_t size;
     int returnValue;
@@ -15,7 +18,10 @@ extern "C" void interruptHandler() {
     TCB::Body start_routine;
     uint64 code;
 
+    __asm__ volatile("csrr %[sepc], sepc": [sepc] "=r" (sepc));
+    __asm__ volatile("csrr %[sstatus], sstatus": [sstatus] "=r" (sstatus));
     __asm__ volatile("csrr %[scause], scause": [scause] "=r" (scauseValue));
+
 
     //I was stupid becusae I am calling form privilege regime so that's why its 9 instead of 8 I need to go back to user Regime and call all those things
     // It should be 8 but I am testing now in unsupervised regime
@@ -23,7 +29,7 @@ extern "C" void interruptHandler() {
         //big swittch with C API codes
 
         uint64 a1,a2,a3;
-        __asm__ volatile("mv %0, a0" : "=r" (code) );
+        __asm__ volatile ("mv %0, a0" : "=r" (code) );
         __asm__ volatile ("mv %0, a1" : "=r" (a1));
         __asm__ volatile ("mv %0, a2" : "=r" (a2));
         __asm__ volatile ("mv %0, a3" : "=r" (a3));
@@ -66,10 +72,8 @@ extern "C" void interruptHandler() {
                 break;
 
         }
-        //Increment PC
-        uint64 sepc;
-        __asm__ volatile("csrr %0,sepc" : "=r"(sepc));
-        __asm__ volatile("csrw sepc,%0" : : "r"(sepc+4));
+        __asm__ volatile("csrw sstatus, %0" : : "r"(sstatus));
+		__asm__ volatile("csrw sepc,    %0" : : "r"(sepc+4));
 
     }
     else if(scauseValue==0x8000000000000001UL){

@@ -5,7 +5,6 @@
 
 MemoryAllocator &MemoryAllocator::getInstance() {
     static MemoryAllocator instance;
-    return instance;
 }
 
 MemoryAllocator::MemoryAllocator() {
