@@ -3,7 +3,10 @@
 #include "../lib/console.h"
 #include "../h/syscall_c.hpp"
 #include "../h/printHelper.hpp"
-#include "userMain.cpp"
+
+extern "C" void interrupt();
+
+void userMain(void*);
 
 int main(){
     __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt));

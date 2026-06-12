@@ -62,7 +62,7 @@ static void workerBodyC(void* arg) {
         printString("C: i="); printInteger(i); printString("\n");
     }
 
-    printString("A finished!\n");
+    printString("C finished!\n");
     finishedC = true;
     thread_dispatch();
 }
@@ -111,6 +111,6 @@ void Threads_C_API_test() {
 }
 
 
-void userMain() {
+void userMain(void* nothing) {
     Threads_C_API_test();
 }
