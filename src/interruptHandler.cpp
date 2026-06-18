@@ -2,6 +2,8 @@
 #include "../h/MemoryAllocator.hpp"
 #include "../h/TCB.hpp"
 #include "../h/printHelper.hpp"
+#include "../h/Riscv.hpp"
+
 class _thread;
 typedef _thread* thread_t;
 
@@ -16,15 +18,14 @@ extern "C" void interruptHandler() {
     void* arg;
     thread_t* handle;
     TCB::Body start_routine;
-    uint64 code;
 
     __asm__ volatile("csrr %[sepc], sepc": [sepc] "=r" (sepc));
     __asm__ volatile("csrr %[sstatus], sstatus": [sstatus] "=r" (sstatus));
     __asm__ volatile("csrr %[scause], scause": [scause] "=r" (scauseValue));
 
-    if (scauseValue == 0x0000000000000009UL || scauseValue == 0x0000000000000008UL) {
+    if (scauseValue == 0x0000000000000009UL) {
 
-        uint64 a1,a2,a3;
+        uint64 a1,a2,a3,code;
         __asm__ volatile ("mv %0, a0" : "=r" (code) );
         __asm__ volatile ("mv %0, a1" : "=r" (a1));
         __asm__ volatile ("mv %0, a2" : "=r" (a2));
@@ -67,28 +68,36 @@ extern "C" void interruptHandler() {
     }
     else if(scauseValue==0x8000000000000001UL){
         //timer interrupt
-        uint64 stval;
+        //Unexpected interrupt
         printString("Timer interrupt");
-        printString("Scause= ");
-        printInteger(scauseValue);
-        printString("Sepc= ");
-        printInteger(sepc);
-        __asm__ volatile("csrr %0,stval" : "=r"(stval));
-        while (true);
+        printString("scause= ");printInteger(scauseValue);
+        printString("sepc= ");printInteger(sepc);
+        printString("sstatus= ");printInteger(sstatus);
+
+
+        TCB::timeSliceCounter++;
+        if(TCB::timeSliceCouter >= TCB::running->getTimeSlice()){
+
+            TCB::timeSliceCounter=0;
+            TCB::dispatch();
+            w_scause(scause);
+            w_sepc(sepc):
+        }
+        Riscv::mc_sip(SIP_SSIP);
     }
     else if(scauseValue == 0x8000000000000009UL){
         //keyboard interrupt
+        printString("Timer interrupt");
+        printString("scause= ");printInteger(scauseValue);
+        printString("sepc= ");printInteger(sepc);
+        printString("sstatus= ");printInteger(sstatus);
     }
     else{
         //Unexpected interrupt
-        uint64 stval;
-        printString("Timer interrupt");
-        printString("Scause= ");
-        printInteger(scauseValue);
-        printString("Sepc= ");
-        printInteger(sepc);
-        __asm__ volatile("csrr %0,stval" : "=r"(stval));
-        while (true);
+        printString("Unexpected interrupt");
+        printString("scause= ");printInteger(scauseValue);
+        printString("sepc= ");printInteger(sepc);
+        printString("sstatus= ");printInteger(sstatus);
     }
 }
 

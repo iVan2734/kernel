@@ -3,10 +3,13 @@
 #include "../h/Scheduler.hpp"
 
 TCB *TCB::running=nullptr;
+uint64 TCB::timeSliceCounter=0;
 
 TCB::TCB(Body body,void* args):
     body(body),
     stack(body!=nullptr ? new uint64[STACK_SIZE] : nullptr),
+	kernelStack(body!=nullptr ? new uint64[STACK_SIZE] : nullptr),
+	kernelSp(kernelStack!=nullptr ? (uint64) &kernelStack[STACK_SIZE] : 0)
     context({
         body!=nullptr ? (uint64) &threadWrapper : 0,
         stack!=nullptr ? (uint64) &stack[STACK_SIZE] : 0
@@ -14,7 +17,6 @@ TCB::TCB(Body body,void* args):
     finished(false),
     args(args)
 {
-    //if (TCB::running==nullptr) TCB::running=this;
     if (body!=nullptr) Scheduler::getInstance().put(this);
 }
 
@@ -33,9 +35,7 @@ void TCB::dispatch(){
 }
 
 void TCB::yield(){
-    Riscv::pushRegisters();
-    TCB::dispatch();
-    Riscv::popRegisters();
+    __asm__ volatile("ecall");
 }
 
 int TCB::thread_exit(){
@@ -48,8 +48,8 @@ int TCB::thread_exit(){
 }
 
 void TCB::threadWrapper(){
-    //Riscv::popSppSpie();
+    Riscv::popSppSpie();
     running->body(running->args);
     running->setFinished(true);
-    TCB::dispatch();
+    TCB::yield();
 }

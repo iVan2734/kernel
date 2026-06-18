@@ -105,10 +105,7 @@ inline void Riscv::w_stval(uint64 stval){
     __asm__ volatile ("csrw stval, %[stval]" : : [stval] "r"(stval));
 }
 
-inline void Riscv::popSppSpie() {
-    __asm__ volatile ("csrw sepc, ra");
-    __asm__ volatile ("sret");
-}
+
 
 
 
