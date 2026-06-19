@@ -13,7 +13,6 @@ void Scheduler::put(TCB* t){
 }
 
 TCB* Scheduler::get(){
-    //Think about idle thread implements, what happend when the queue is empty
     return Scheduler::getInstance().ready.removeLast();
 
 }

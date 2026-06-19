@@ -3,6 +3,7 @@
 #include "../h/TCB.hpp"
 #include "../h/printHelper.hpp"
 #include "../h/Riscv.hpp"
+#include "../lib/console.h"
 
 class _thread;
 typedef _thread* thread_t;
@@ -23,13 +24,16 @@ extern "C" void interruptHandler() {
     __asm__ volatile("csrr %[sstatus], sstatus": [sstatus] "=r" (sstatus));
     __asm__ volatile("csrr %[scause], scause": [scause] "=r" (scauseValue));
 
-    if (scauseValue == 0x0000000000000009UL) {
+    if (scauseValue == 0x0000000000000009UL || scauseValue == 0x0000000000000008UL ) {
 
         uint64 a1,a2,a3,code;
         __asm__ volatile ("mv %0, a0" : "=r" (code) );
         __asm__ volatile ("mv %0, a1" : "=r" (a1));
         __asm__ volatile ("mv %0, a2" : "=r" (a2));
         __asm__ volatile ("mv %0, a3" : "=r" (a3));
+
+        uint64 currentSepc = Riscv::r_sepc() + 4;
+        uint64 currentSstatus = Riscv::r_sstatus();
 
         switch (code) {
             case 0x01:
@@ -58,46 +62,37 @@ extern "C" void interruptHandler() {
                 break;
             //thread_dispatch
             case 0x013:
+                TCB::timeSliceCounter=0;
                 TCB::dispatch();
                 break;
-
         }
-        __asm__ volatile("csrw sstatus, %0" : : "r"(sstatus));
-		__asm__ volatile("csrw sepc,    %0" : : "r"(sepc+4));
+        Riscv::w_sstatus(currentSstatus);
+        Riscv::w_sepc(currentSepc);
+        //__asm__ volatile("csrw sstatus, %0" : : "r"(sstatus));
+		//__asm__ volatile("csrw sepc,    %0" : : "r"(sepc+4));
 
     }
     else if(scauseValue==0x8000000000000001UL){
         //timer interrupt
-        //Unexpected interrupt
-        printString("Timer interrupt");
-        printString("scause= ");printInteger(scauseValue);
-        printString("sepc= ");printInteger(sepc);
-        printString("sstatus= ");printInteger(sstatus);
-
-
+        printString("Timer interrupt\n");
+        Riscv::mc_sip(Riscv::SIP_SSIE);
         TCB::timeSliceCounter++;
-        if(TCB::timeSliceCouter >= TCB::running->getTimeSlice()){
-
+        if(TCB::timeSliceCounter >= TCB::running->getTimeSlice()){
             TCB::timeSliceCounter=0;
             TCB::dispatch();
-            w_scause(scause);
-            w_sepc(sepc):
         }
-        Riscv::mc_sip(SIP_SSIP);
     }
     else if(scauseValue == 0x8000000000000009UL){
         //keyboard interrupt
-        printString("Timer interrupt");
-        printString("scause= ");printInteger(scauseValue);
-        printString("sepc= ");printInteger(sepc);
-        printString("sstatus= ");printInteger(sstatus);
+        //printString("Keyboard interrupt\n");
+        console_handler();
     }
     else{
         //Unexpected interrupt
-        printString("Unexpected interrupt");
+        printString("Unexpected interrupt\n");
         printString("scause= ");printInteger(scauseValue);
         printString("sepc= ");printInteger(sepc);
-        printString("sstatus= ");printInteger(sstatus);
+        while (1);
     }
 }
 

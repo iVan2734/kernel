@@ -11,6 +11,7 @@ public:
     static Scheduler& getInstance();
     static void put(TCB *thread);
     static TCB* get();
+    bool isEmpty(){ return ready.empty(); }
 private:
     Scheduler();
     List<TCB> ready;

@@ -105,9 +105,40 @@ inline void Riscv::w_stval(uint64 stval){
     __asm__ volatile ("csrw stval, %[stval]" : : [stval] "r"(stval));
 }
 
+inline uint64 Riscv::r_sstatus() {
+    uint64 volatile sstatus;
+    __asm__ volatile("csrr %[sstatus], sstatus" : [sstatus] "=r"(sstatus));
+    return sstatus;
+}
 
+inline void Riscv::w_sstatus(uint64 sstatus) {
+    __asm__ volatile("csrw sstatus, %[sstatus]" : : [sstatus] "r"(sstatus));
+}
 
+inline void Riscv::ms_sstatus(uint64 mask) {
+    __asm__ volatile("csrs sstatus, %[mask]" : : [mask] "r"(mask));
+}
 
+inline void Riscv::mc_sstatus(uint64 mask) {
+    __asm__ volatile("csrc sstatus, %[mask]" : : [mask] "r"(mask));
+}
+inline uint64 Riscv::r_sip() {
+    uint64 volatile sip;
+    __asm__ volatile("csrr %[sip], sip" : [sip] "=r"(sip));
+    return sip;
+}
+
+inline void Riscv::w_sip(uint64 sip) {
+    __asm__ volatile("csrw sip, %[sip]" : : [sip] "r"(sip));
+}
+
+inline void Riscv::ms_sip(uint64 mask) {
+    __asm__ volatile("csrs sip, %[mask]" : : [mask] "r"(mask));
+}
+
+inline void Riscv::mc_sip(uint64 mask) {
+    __asm__ volatile("csrc sip, %[mask]" : : [mask] "r"(mask));
+}
 
 
 #endif
