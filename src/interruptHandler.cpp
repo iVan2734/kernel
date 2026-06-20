@@ -1,7 +1,7 @@
 #include "../lib/hw.h"
 #include "../h/MemoryAllocator.hpp"
 #include "../h/TCB.hpp"
-//#include "../h/printHelper.hpp"
+#include "../h/printHelper.hpp"
 #include "../h/Riscv.hpp"
 #include "../h/Semaphore.hpp"
 #include "../h/Console.hpp"
@@ -149,9 +149,9 @@ extern "C" void interruptHandler() {
     }
     else{
         //Unexpected interrupt
-        //printString("Unexpected interrupt\n");
-        //printString("scause= ");printInteger(scauseValue);
-        //printString("sepc= ");printInteger(sepc);
+        printString("Unexpected interrupt\n");
+        printString("scause= ");printInteger(scauseValue);
+        printString("sepc= ");printInteger(sepc);
         while (1);
     }
 }

@@ -35,6 +35,6 @@ const int EOF=-1;
 
 char getc();
 
-void putc();
+void putc(char c);
 
 #endif

@@ -29,7 +29,7 @@ TCB *TCB::create_thread(Body body,void *args,bool kernelThread) {
 
 void TCB::dispatch(){
     TCB *old=running;
-    if(!old->isFinished() && old->body!=nullptr){ Scheduler::getInstance().put(old); }
+    if(!old->isFinished()){ Scheduler::getInstance().put(old); }
     running=Scheduler::getInstance().get();
     TCB::contextSwitch(&old->context,&running->context);
 }
@@ -48,13 +48,12 @@ int TCB::thread_exit(){
 }
 
 void TCB::threadWrapper(){
-    if(!running->kernelThr){
-         __asm__ volatile("csrc sstatus, %0" : : "r"(1 << 8));
-    }
-    else{
+    if (!running->kernelThr) {
+        __asm__ volatile("csrc sstatus, %0" : : "r"(1 << 8));
+        __asm__ volatile("csrs sstatus, %0" : : "r"(1 << 5));
+    } else {
         __asm__ volatile("csrs sstatus, %0" : : "r"(1 << 8));
     }
-    __asm__ volatile("csrs sstatus, %0" : : "r"(1 << 5));
     Riscv::popSppSpie();
     running->body(running->args);
     running->setFinished(true);
