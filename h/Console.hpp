@@ -16,9 +16,14 @@ public:
     void putc(char c);
     char getc();
     friend void outputThread(void*);
-    friend void console_handler();
-protected:
+    void inputInterrupt();
+    BoundedBuffer getInputBuffer(){ return inputBuffer; }
+    BoundedBuffer getOutputBuffer(){ return outputBuffer; }
+    Semaphore* getOutputDataAvailable(){ return outputDataAvailable; }
+    Semaphore* getinputDataAvailable(){ return inputDataAvailable; }
+    Semaphore* getoutputSpaceAvailable(){ return outputSpaceAvailable; }
 private:
+    static constexpr uint64 BUFFER_SIZE=256;
     Console();
     BoundedBuffer inputBuffer,outputBuffer;
     Semaphore *outputDataAvailable,*inputDataAvailable,*outputSpaceAvailable;

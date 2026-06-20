@@ -16,7 +16,7 @@ void Semaphore::block(){
     TCB* old=TCB::running;
     blocked.addLast(old);
     TCB::running=Scheduler::getInstance().get();
-    TCB::contextSwitch(&old->context,&running->context);
+    TCB::contextSwitch(&old->context,&TCB::running->context);
 }
 
 void Semaphore::unblock(){
@@ -29,16 +29,16 @@ void Semaphore::wait_n(uint64 n){
          val-=n;
     }
     else {
-        TCB::running->waiting = n;
+        TCB::running->setFinished(n);
         block();
     }
 }
 
 void Semaphore::signal_n(uint64 n){
     val+=n;
-    while(!blocked.empty() && blocked.peekFirst()->waiting<=val){
+    while(!blocked.empty() && blocked.peekFirst()->getWaiting()<=val){
         TCB* t=blocked.removeLast();
-        val-=t->waiting;
+        val-=t->getWaiting();
         Scheduler::getInstance().put(t);
     }
 }

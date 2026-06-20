@@ -1,16 +1,18 @@
 #include "../lib/hw.h"
 #include "../h/MemoryAllocator.hpp"
 #include "../h/TCB.hpp"
-#include "../h/printHelper.hpp"
+//#include "../h/printHelper.hpp"
 #include "../h/Riscv.hpp"
 #include "../h/Semaphore.hpp"
 #include "../h/Console.hpp"
+
 
 class _thread;
 typedef _thread* thread_t;
 
 class _sem;
 typedef _sem* sem_t;
+
 
 extern "C" void interruptHandler() {
     uint64 scauseValue;
@@ -23,9 +25,11 @@ extern "C" void interruptHandler() {
     void* arg;
     thread_t* handle_thread;
     TCB::Body start_routine;
-    sem_t* handle_sem
+    sem_t* handle_sem;
     sem_t* id;
     uint64 n;
+    uint64 init;
+    Semaphore* sem;
 
     __asm__ volatile("csrr %[sepc], sepc": [sepc] "=r" (sepc));
     __asm__ volatile("csrr %[sstatus], sstatus": [sstatus] "=r" (sstatus));
@@ -57,7 +61,7 @@ extern "C" void interruptHandler() {
 				handle_thread=(thread_t*)a1;
                 start_routine=(TCB::Body)a2;
                 arg=(void*)a3;
-                *handle_thread=(thread_t)TCB::create_thread(start_routine,arg);
+                *handle_thread=(thread_t)TCB::create_thread(start_routine,arg,0);
                 if(handle_thread==nullptr) returnValue=-1;
                 else returnValue=0;
                 __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
@@ -76,11 +80,13 @@ extern "C" void interruptHandler() {
                 handle_sem=(sem_t*)a1;
                 init=(uint64)a2;
                 *handle_sem=(sem_t)Semaphore::create_semaphore(init);
+                returnValue=1;
                 __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
                 break;
             case 0x022:
                 handle_sem=(sem_t*)a1;
                 sem=(Semaphore*)handle_sem;
+                returnValue=1;
                 delete sem;
                 __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
                 break;
@@ -115,7 +121,7 @@ extern "C" void interruptHandler() {
     }
     else if(scauseValue==0x8000000000000001UL){
         //timer interrupt
-        printString("Timer interrupt\n");
+        //printString("Timer interrupt\n");
         Riscv::mc_sip(Riscv::SIP_SSIE);
         TCB::timeSliceCounter++;
         if(TCB::timeSliceCounter >= TCB::running->getTimeSlice()){
@@ -128,16 +134,16 @@ extern "C" void interruptHandler() {
         //printString("Keyboard interrupt\n");
         uint64 IRQ=plic_claim();
         if(IRQ==CONSOLE_IRQ){
-            console_handler();
+            Console::getInstance().inputInterrupt();
         }
         plic_complete(IRQ);
 
     }
     else{
         //Unexpected interrupt
-        printString("Unexpected interrupt\n");
-        printString("scause= ");printInteger(scauseValue);
-        printString("sepc= ");printInteger(sepc);
+        //printString("Unexpected interrupt\n");
+        //printString("scause= ");printInteger(scauseValue);
+        //printString("sepc= ");printInteger(sepc);
         while (1);
     }
 }

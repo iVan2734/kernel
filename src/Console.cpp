@@ -1,44 +1,45 @@
 #include "../h/Console.hpp"
 
+
 Console& Console::getInstance(){
     static Console instance;
     return instance;
 }
 
-Console::Console()
+Console::Console():
     outputDataAvailable(0),
-    outputSpaceAvailable(256),
-    inputDataAvailable(0)
+    inputDataAvailable(0),
+    outputSpaceAvailable(new Semaphore(BUFFER_SIZE))
     {}
 
 void Console::putc(char c){
-    outputSpaceAvailable.wait();
+    outputSpaceAvailable->wait();
     outputBuffer.append(c);
-    outputDataAvailable.signal();
+    outputDataAvailable->signal();
 }
 
 char Console::getc(){
-    inputData.wait();
+    inputDataAvailable->wait();
     return inputBuffer.take();
 }
 
 void outputThread(void*){
     Console& console=Console::getInstance();
     while(1){
-        console.outputDataAvailable.wait();
-        while(!(*(volatile char*)CONSOLE_STATUS & CONSOLE_STATUS_TX_BIT));
-        *CONSOLE_TX_DATA=(uint64)console.outputBuffer.take();
-        console.outputSpaceAvaibable.signal();
+        console.outputDataAvailable->wait();
+        while(!(*(volatile char*)CONSOLE_STATUS & CONSOLE_TX_STATUS_BIT));
+        *(volatile char*)CONSOLE_TX_DATA=console.outputBuffer.take();
+        console.outputSpaceAvailable->signal();
     }
 }
 
-void console_handler(){
+void Console::inputInterrupt(){
     Console& console=Console::getInstance();
-    while(*(volatile char*)CONSOLE_STATUS & CONSOLE_STATUS_RX_BIT){
+    while(*(volatile char*)CONSOLE_STATUS & CONSOLE_RX_STATUS_BIT){
         char data=*(volatile char*)CONSOLE_RX_DATA;
         if(!console.inputBuffer.isFull()){
             console.inputBuffer.append(data);
-            console.inputDataAvailable.signal();
+            console.inputDataAvailable->signal();
         }
     }
 }

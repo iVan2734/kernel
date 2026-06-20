@@ -4,13 +4,14 @@
 #include "List.hpp"
 #include "Scheduler.hpp"
 #include "../lib/hw.h"
+#include "../h/TCB.hpp"
 
 class Semaphore{
 public:
     Semaphore(uint64 init);
     ~Semaphore();
 
-    Semaphore* create_semaphore(uint64 init);
+    static Semaphore* create_semaphore(uint64 init);
     int getVal() const { return this->val; }
 
     void signal();
@@ -22,7 +23,7 @@ public:
     void block();
     void unblock();
 private:
-    List<TCB*> blocked;
-    int val;
+    List<TCB> blocked;
+    uint64 val;
 };
 #endif

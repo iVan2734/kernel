@@ -23,8 +23,8 @@ TCB::TCB(Body body,void* args,bool kernelThread):
     if (body!=nullptr) Scheduler::getInstance().put(this);
 }
 
-TCB *TCB::create_thread(Body body,void *args) {
-    return new TCB(body,args);
+TCB *TCB::create_thread(Body body,void *args,bool kernelThread) {
+    return new TCB(body,args,kernelThread);
 }
 
 void TCB::dispatch(){
@@ -48,7 +48,7 @@ int TCB::thread_exit(){
 }
 
 void TCB::threadWrapper(){
-    if(!kernelThread){
+    if(!running->kernelThr){
          __asm__ volatile("csrc sstatus, %0" : : "r"(1 << 8));
     }
     else{

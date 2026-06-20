@@ -9,6 +9,8 @@ extern "C" void interrupt();
 
 void userMain(void*);
 
+void outputThread(void*);
+
 int main(){
 
 
@@ -16,7 +18,7 @@ int main(){
     TCB* kernelThread=TCB::create_thread(nullptr,nullptr,1);
     TCB::running=kernelThread;
     TCB* userThread=TCB::create_thread(&userMain,nullptr,0);
-    TCB* consoleThread=TCB::create_thread(&outputThread,nullptr,1);
+    TCB::create_thread(&outputThread,nullptr,1);
 
     while (!userThread->isFinished()) {
         thread_dispatch();
