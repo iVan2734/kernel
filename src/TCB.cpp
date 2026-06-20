@@ -6,7 +6,7 @@
 TCB *TCB::running=nullptr;
 uint64 TCB::timeSliceCounter=0;
 
-TCB::TCB(Body body,void* args):
+TCB::TCB(Body body,void* args,bool kernelThread):
     body(body),
     stack(body!=nullptr ? new uint64[STACK_SIZE] : nullptr),
     context({
@@ -15,7 +15,10 @@ TCB::TCB(Body body,void* args):
     }),
     finished(false),
     args(args),
-    timeSlice(DEFAULT_TIME_SLICE)
+    timeSlice(DEFAULT_TIME_SLICE),
+    waiting(0),
+    kernelThr(kernelThread)
+
 {
     if (body!=nullptr) Scheduler::getInstance().put(this);
 }
@@ -45,8 +48,13 @@ int TCB::thread_exit(){
 }
 
 void TCB::threadWrapper(){
-    __asm__ volatile("csrc sstatus, %0" : : "r"(1UL << 8));
-    __asm__ volatile("csrs sstatus, %0" : : "r"(1UL << 5));
+    if(!kernelThread){
+         __asm__ volatile("csrc sstatus, %0" : : "r"(1 << 8));
+    }
+    else{
+        __asm__ volatile("csrs sstatus, %0" : : "r"(1 << 8));
+    }
+    __asm__ volatile("csrs sstatus, %0" : : "r"(1 << 5));
     Riscv::popSppSpie();
     running->body(running->args);
     running->setFinished(true);

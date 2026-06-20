@@ -2,39 +2,27 @@
 #define SEMAPHORE_HPP
 
 #include "List.hpp"
-#include "Riscv.hpp"
 #include "Scheduler.hpp"
+#include "../lib/hw.h"
 
 class Semaphore{
 public:
-    Semaphore(int init);
+    Semaphore(uint64 init);
     ~Semaphore();
-protected:
+
+    Semaphore* create_semaphore(uint64 init);
     int getVal() const { return this->val; }
 
     void signal();
     void wait();
 
-    void signal_n(int n);
-    void wait_n(int n);
+    void signal_n(uint64 n);
+    void wait_n(uint64 n);
 
     void block();
     void unblock();
-
-    void lock();
-    void unlock();
-
 private:
     List<TCB*> blocked;
     int val;
 };
-/*
-inline void lock(){
-    Riscv::disableInterrupts();
-}
-
-inline void unlock(){
-    Riscv::enableInterrupts();
-}
-*/
 #endif

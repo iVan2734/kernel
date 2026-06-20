@@ -20,7 +20,7 @@ public:
     static TCB *running;
     static uint64 timeSliceCounter;
 private:
-    explicit TCB(Body body,void *args);
+    explicit TCB(Body body,void *args,bool kernelThread);
     Body body;
 
     struct Context{
@@ -31,8 +31,9 @@ private:
     Context context;
     bool finished;
     void  *args;
-
     uint64 timeSlice;
+    uint64 waiting;
+    bool kernelThr;
 
     static void threadWrapper();
     static void contextSwitch(Context *oldContext,Context *newContext);
