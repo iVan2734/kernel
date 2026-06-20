@@ -1,12 +1,21 @@
-#include "../lib/hw.h"
 #include "../h/syscall_c.hpp"
-#include "../h/printHelper.hpp"
 
+static void printString(const char* s){
+    while(*s) putc(*s++);
+}
 
+void userWrapper(void*){
+    printString("Console test\n");
+    printString("Kucaj nesto, Enter za kraj:\n");
 
-void userWrapper(void* ) {
-    //thread_t t[3];
-    //thread_create(&t[0], workerA, nullptr);
-    //thread_create(&t[1], workerB, nullptr);
-    //thread_create(&t[2], workerC, nullptr);
+    while(1){
+        char c = getc();
+        if(c == '\r' || c == '\n'){
+            putc('\n');
+            break;
+        }
+        putc(c);
+    }
+
+    printString("Gotovo!\n");
 }

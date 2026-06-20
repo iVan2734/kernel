@@ -62,16 +62,14 @@ extern "C" void interruptHandler() {
                 start_routine=(TCB::Body)a2;
                 arg=(void*)a3;
                 *handle_thread=(thread_t)TCB::create_thread(start_routine,arg,0);
-                if(handle_thread==nullptr) returnValue=-1;
+                if(*handle_thread==nullptr) returnValue=-1;
                 else returnValue=0;
                 __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
                 break;
-            //thread_exit
             case 0x012:
                 returnValue=TCB::thread_exit();
                 __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
                 break;
-            //thread_dispatch
             case 0x013:
                 TCB::timeSliceCounter=0;
                 TCB::dispatch();
@@ -111,6 +109,16 @@ extern "C" void interruptHandler() {
                 n=a2;
                 sem=(Semaphore*)id;
                 sem->signal_n(n);
+                break;
+            case 0x031:
+                break;
+            case 0x041:
+                returnValue=(uint64)Console::getInstance().getc();
+                __asm__ volatile ("mv a0, %0" : : "r" (returnValue));
+                break;
+            case 0x042:
+                char c=(char)a1;
+                Console::getInstance().putc(c);
                 break;
         }
         Riscv::w_sstatus(currentSstatus);

@@ -1,13 +1,13 @@
 #include "../lib/hw.h"
 #include "../h/Riscv.hpp"
-#include "../h/printHelper.hpp"
+//#include "../h/printHelper.hpp"
 #include "../h/TCB.hpp"
 #include "../h/syscall_c.hpp"
 #include "../h/Console.hpp"
 
 extern "C" void interrupt();
 
-void userMain(void*);
+void userWrapper(void*);
 
 void outputThread(void*);
 
@@ -17,7 +17,7 @@ int main(){
     __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt));
     TCB* kernelThread=TCB::create_thread(nullptr,nullptr,1);
     TCB::running=kernelThread;
-    TCB* userThread=TCB::create_thread(&userMain,nullptr,0);
+    TCB* userThread=TCB::create_thread(&userWrapper,nullptr,0);
     TCB::create_thread(&outputThread,nullptr,1);
 
     while (!userThread->isFinished()) {

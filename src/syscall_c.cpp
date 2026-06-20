@@ -115,3 +115,19 @@ int sem_signal_n(sem_t id, unsigned n){
     __asm__ volatile("mv %0, a0" : "=r" (returnValue));
     return returnValue;
 }
+
+char getc(){
+    uint64 code=0x41;
+    char returnValue;
+    __asm__ volatile("mv a0, %0" : : "r" (code) );
+    __asm__ volatile("ecall");
+    __asm__ volatile("mv %0, a0" : "=r" (returnValue));
+    return returnValue;
+}
+
+void putc(char c){
+    uint64 code=0x42;
+    __asm__ volatile("mv a1, %0" : : "r" (c) );
+    __asm__ volatile("mv a0, %0" : : "r" (code) );
+    __asm__ volatile("ecall");
+}

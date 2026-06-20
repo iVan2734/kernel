@@ -31,5 +31,10 @@ int sem_wait_n(sem_t id, unsigned n);
 
 int sem_signal_n(sem_t id, unsigned n);
 
+const int EOF=-1;
+
+char getc();
+
+void putc();
 
 #endif
