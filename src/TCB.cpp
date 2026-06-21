@@ -17,7 +17,8 @@ TCB::TCB(Body body,void* args,bool kernelThread):
     args(args),
     timeSlice(DEFAULT_TIME_SLICE),
     waiting(0),
-    kernelThr(kernelThread)
+    kernelThr(kernelThread),
+	sleeping(0)
 
 {
     if (body!=nullptr) Scheduler::getInstance().put(this);
@@ -54,4 +55,13 @@ void TCB::threadWrapper(){
     running->body(running->args);
     running->setFinished(true);
     ::thread_exit();
+}
+
+int TCB::time_sleep(time_t time){
+	TCB* sleep=TCB::running;
+	old->setSleeping(time);
+	Schudeler::getInstance().putSleep(old);
+	TCB::running=Scheduler::getInstance().get();
+	TCB::contextSwitch(&old->context,&running->context);
+	return 0;
 }

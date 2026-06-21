@@ -35,9 +35,9 @@ extern "C" void interruptHandler(uint64* reg) {
     uint64 init;
     Semaphore* sem;
 
-    __asm__ volatile("csrr %[sepc], sepc": [sepc] "=r" (sepc));
-    __asm__ volatile("csrr %[sstatus], sstatus": [sstatus] "=r" (sstatus));
-    __asm__ volatile("csrr %[scause], scause": [scause] "=r" (scauseValue));
+    sepc=Riscv::r_sepc();
+    sstatus=Riscv::r_sstatus();
+    scause=Riscv::r_scause();
 
     if (scauseValue == 0x0000000000000009UL || scauseValue == 0x0000000000000008UL ) {
 
@@ -122,9 +122,9 @@ extern "C" void interruptHandler(uint64* reg) {
     }
     else if(scauseValue==0x8000000000000001UL){
         //timer interrupt
-        //printString("Timer interrupt\n");
         Riscv::mc_sip(Riscv::BitMaskSip::SIP_SSIE);
         TCB::timeSliceCounter++;
+        Scheduler::getInstance().updateSleep();
         if(TCB::timeSliceCounter >= TCB::running->getTimeSlice()){
             TCB::timeSliceCounter=0;
             TCB::dispatch();

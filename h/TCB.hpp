@@ -13,8 +13,11 @@ public:
 
     bool isFinished() const {return finished;}
     void setFinished(bool finished) {this->finished=finished;}
-    uint64 getWaiting() const {return waiting;}
-    void setWaiting(uint64 waiting) {this->waiting=waiting;}
+    uint64 getSemWaiting() const {return semWaiting;}
+    void setSemWaiting(uint64 waiting) {this->semWaiting=waiting;}
+	time_t getSleepingTime() const {return sleepingTime;}
+    void setSleepingTime(uint64 sleeping) {this->sleepingTime=sleepingTime;}
+
     static void yield();
     static void dispatch();
     static int thread_exit();
@@ -34,8 +37,9 @@ private:
     bool finished;
     void  *args;
     uint64 timeSlice;
-    uint64 waiting;
+    uint64 semWaiting;
     bool kernelThr;
+	time_t sleepingTime;
 
     static void threadWrapper();
     static void contextSwitch(Context *oldContext,Context *newContext);

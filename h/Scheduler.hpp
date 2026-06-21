@@ -10,11 +10,15 @@ class Scheduler {
 public:
     static Scheduler& getInstance();
     static void put(TCB *thread);
+    static void putSleep(TCB *thread);
     static TCB* get();
-    bool isEmpty(){ return ready.empty(); }
+    static void updateSleep();
+    bool isReadyEmpty(){ return ready.empty(); }
+    bool isSleepEmpty(){ return sleep.empty(); }
 private:
     Scheduler();
     List<TCB> ready;
+    PriorityQueue<TCB> sleep;
 };
 
 #endif

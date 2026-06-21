@@ -31,16 +31,16 @@ void Semaphore::wait_n(uint64 n){
          val-=n;
     }
     else {
-        TCB::running->setWaiting(n);
+        TCB::running->setSemWaiting(n);
         block();
     }
 }
 
 void Semaphore::signal_n(uint64 n){
     val+=n;
-    while(!blocked.empty() && blocked.peekFirst()->getWaiting()<=val){
+    while(!blocked.empty() && blocked.peekFirst()->getSemWaiting()<=val){
         TCB* t=blocked.removeFirst();
-        val-=t->getWaiting();
+        val-=t->getSemWaiting();
         Scheduler::getInstance().put(t);
     }
 }
