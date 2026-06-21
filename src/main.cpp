@@ -21,8 +21,9 @@ int main(){
     while (!userThread->isFinished()) {
         thread_dispatch();
     }
-    //0x5555 on address 0x100000(END)
-    //*((volatile uint32*)0x100000) = 0x5555;
+
+    //0x5555 on address 0x100000 to end program
+    *((volatile uint32*)0x100000)=0x5555;
     return 0;
 }
 

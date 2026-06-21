@@ -39,21 +39,17 @@ void TCB::yield(){
 }
 
 int TCB::thread_exit(){
-    if (!TCB::running) return -1;
     TCB* old=TCB::running;
+	old->setFinished(true);
     TCB::running=Scheduler::getInstance().get();
     TCB::contextSwitch(&old->context,&running->context);
-    delete old;
     return 0;
 }
 
 void TCB::threadWrapper(){
     if (!running->kernelThr) {
-        __asm__ volatile("csrc sstatus, %0" : : "r"(1 << 8));
-        __asm__ volatile("csrs sstatus, %0" : : "r"(1 << 5));
-    } else {
-        __asm__ volatile("csrs sstatus, %0" : : "r"(1 << 8));
-    }
+        __asm__ volatile("csrc sstatus, %0" : : "r"(Riscv::BitMaskSstatus::SSTATUS_SIP));
+	}
     Riscv::popSppSpie();
     running->body(running->args);
     running->setFinished(true);

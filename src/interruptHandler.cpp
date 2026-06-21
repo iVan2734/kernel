@@ -43,8 +43,8 @@ extern "C" void interruptHandler() {
         __asm__ volatile ("mv %0, a2" : "=r" (a2));
         __asm__ volatile ("mv %0, a3" : "=r" (a3));
 
-        uint64 currentSepc = Riscv::r_sepc() + 4;
-        uint64 currentSstatus = Riscv::r_sstatus();
+        volatile uint64 currentSepc = Riscv::r_sepc();
+        volatile uint64 currentSstatus = Riscv::r_sstatus();
 
         switch (code) {
             case 0x01:
@@ -121,21 +121,22 @@ extern "C" void interruptHandler() {
                 Console::getInstance().putc(c);
                 break;
         }
+		Riscv::w_sepc(currentSepc+4);
         Riscv::w_sstatus(currentSstatus);
-        Riscv::w_sepc(currentSepc);
-        //__asm__ volatile("csrw sstatus, %0" : : "r"(sstatus));
-		//__asm__ volatile("csrw sepc,    %0" : : "r"(sepc+4));
 
     }
     else if(scauseValue==0x8000000000000001UL){
         //timer interrupt
         //printString("Timer interrupt\n");
-        Riscv::mc_sip(Riscv::SIP_SSIE);
+        Riscv::mc_sip(Riscv::BitMaskSip::SIP_SSIP);
         TCB::timeSliceCounter++;
         if(TCB::timeSliceCounter >= TCB::running->getTimeSlice()){
             TCB::timeSliceCounter=0;
             TCB::dispatch();
         }
+		Riscv::w_sepc(currentSepc);
+        Riscv::w_sstatus(currentSstatus);
+
     }
     else if(scauseValue == 0x8000000000000009UL){
         //keyboard interrupt
@@ -145,6 +146,8 @@ extern "C" void interruptHandler() {
             Console::getInstance().inputInterrupt();
         }
         plic_complete(IRQ);
+		Riscv::w_sepc(currentSepc);
+        Riscv::w_sstatus(currentSstatus);
 
     }
     else{

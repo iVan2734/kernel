@@ -1,6 +1,6 @@
 #include "../h/syscall_c.hpp"
 
-void userWrapper(void*){
+void userWrapper(void* n){
     putc('G');
     putc('G');
 }
