@@ -1,4 +1,6 @@
 #include "../h/Semaphore.hpp"
+#include "../h/Riscv.hpp"
+#include "../h/Console.hpp"
 
 Semaphore::Semaphore(uint64 init):val(init){}
 
@@ -29,7 +31,7 @@ void Semaphore::wait_n(uint64 n){
          val-=n;
     }
     else {
-        TCB::running->setFinished(n);
+        TCB::running->setWaiting(n);
         block();
     }
 }
@@ -37,7 +39,7 @@ void Semaphore::wait_n(uint64 n){
 void Semaphore::signal_n(uint64 n){
     val+=n;
     while(!blocked.empty() && blocked.peekFirst()->getWaiting()<=val){
-        TCB* t=blocked.removeLast();
+        TCB* t=blocked.removeFirst();
         val-=t->getWaiting();
         Scheduler::getInstance().put(t);
     }

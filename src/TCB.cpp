@@ -48,8 +48,8 @@ int TCB::thread_exit(){
 
 void TCB::threadWrapper(){
     if (!running->kernelThr) {
-        __asm__ volatile("csrc sstatus, %0" : : "r"(Riscv::BitMaskSstatus::SSTATUS_SIP));
-	}
+        __asm__ volatile("csrc sstatus, %0" : : "r"(Riscv::BitMaskSstatus::SSTATUS_SPP));
+    }
     Riscv::popSppSpie();
     running->body(running->args);
     running->setFinished(true);

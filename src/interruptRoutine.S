@@ -36,6 +36,7 @@ interrupt:
     sd x30,0xF0(sp)
     sd x31,0xF8(sp)
 
+    mv a0,sp
     call interruptHandler
 
     ld x0,0x00(sp)
@@ -48,8 +49,8 @@ interrupt:
     ld x7,0x38(sp)
     ld x8,0x40(sp)
     ld x9,0x48(sp)
-    //ld x10,0x50(sp)
-    //ld x11,0x58(sp)
+    ld x10,0x50(sp)
+    ld x11,0x58(sp)
     ld x12,0x60(sp)
     ld x13,0x68(sp)
     ld x14,0x70(sp)

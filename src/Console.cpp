@@ -1,14 +1,14 @@
 #include "../h/Console.hpp"
 
-
+#include "../h/Riscv.hpp"
 Console& Console::getInstance(){
     static Console instance;
     return instance;
 }
 
 Console::Console():
-    outputDataAvailable(0),
-    inputDataAvailable(0),
+    outputDataAvailable(new Semaphore(0)),
+    inputDataAvailable(new Semaphore(0)),
     outputSpaceAvailable(new Semaphore(BUFFER_SIZE))
     {}
 

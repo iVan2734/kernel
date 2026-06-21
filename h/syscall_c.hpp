@@ -37,4 +37,8 @@ char getc();
 
 void putc(char c);
 
+typedef unsigned long time_t;
+
+int time_sleep(time_t);
+
 #endif

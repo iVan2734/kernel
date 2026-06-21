@@ -1,17 +1,18 @@
 #include "../lib/hw.h"
-#include "../h/Riscv.hpp"
-//#include "../h/printHelper.hpp"
 #include "../h/TCB.hpp"
 #include "../h/syscall_c.hpp"
 #include "../h/Console.hpp"
 
 extern "C" void interrupt();
 
+
 void userWrapper(void*);
 
 void outputThread(void*);
 
 int main(){
+    Console& console = Console::getInstance();
+
     __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt));
     TCB* kernelThread=TCB::create_thread(nullptr,nullptr,1);
     TCB::running=kernelThread;
@@ -19,6 +20,9 @@ int main(){
     TCB* userThread=TCB::create_thread(&userWrapper,nullptr,0);
 
     while (!userThread->isFinished()) {
+        thread_dispatch();
+    }
+    while (!console.isOutputEmpty()) {
         thread_dispatch();
     }
 

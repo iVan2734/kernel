@@ -131,3 +131,13 @@ void putc(char c){
     __asm__ volatile("mv a0, %0" : : "r" (code) );
     __asm__ volatile("ecall");
 }
+
+int time_sleep(time_t t) {
+    uint64 code=0x31;
+    uint64 returnValue;
+    __asm__ volatile("mv a1, %0" : : "r" (t) );
+    __asm__ volatile("mv a0, %0" : : "r" (code) );
+    __asm__ volatile("ecall");
+    __asm__ volatile("mv %0, a0" : "=r" (returnValue));
+    return returnValue;
+}

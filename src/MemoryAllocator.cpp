@@ -1,4 +1,3 @@
-
 #include  "../h/MemoryAllocator.hpp"
 #include "../lib/console.h"
 
@@ -23,11 +22,9 @@ void* MemoryAllocator::memAlloc(size_t size) {
     //return MemoryAllocator::getInstance().bestFitAlloc();
 }
 
-
-
 void* MemoryAllocator::firstFitAlloc(size_t size) {
     if (size<=0) {
-        __putc('!');
+        //__putc('!');
         return nullptr;
     }
     //sizeof(fragment) extra space to store fragment data
@@ -63,7 +60,7 @@ void* MemoryAllocator::firstFitAlloc(size_t size) {
             }
         }
     }
-    __putc('F');
+    //__putc('F');
     return nullptr;
 }
 
@@ -71,7 +68,7 @@ int MemoryAllocator::free(void *fragment) {
     for (Fragment* curr=head; curr; curr=curr->next) {
         if ((size_t)curr+sizeof(Fragment)==(size_t)fragment) {
             if (curr->free) {
-                __putc('!');
+                //__putc('!');
                 return -1;
             }
             else {

@@ -7,8 +7,7 @@
 #include "../h/MemoryAllocator.hpp"
 
 // outputThread needs to be blocked if the outputBuffer is empty
-// you can always add charachtes to the input bufffer
-
+// you can always add charachters to the input buffer
 
 class Console{
 public:
@@ -16,6 +15,7 @@ public:
     void putc(char c);
     char getc();
     friend void outputThread(void*);
+    bool isOutputEmpty() { return outputBuffer.isEmpty(); }
     void inputInterrupt();
     BoundedBuffer getInputBuffer(){ return inputBuffer; }
     BoundedBuffer getOutputBuffer(){ return outputBuffer; }
