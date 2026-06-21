@@ -3,8 +3,8 @@
 
 #include "syscall_c.hpp"
 
-void* ::operator new (size_t);
-void  ::operator delete (void*);
+void* operator new (size_t size);
+void  operator delete (void* addr);
 
 class Thread {
 public:
@@ -32,13 +32,14 @@ private:
     sem_t myHandle;
 };
 
-class PeriodicThread : public Thread {
+class PeriodicThread:public Thread {
 public:
-    void terminate ();
+    void terminate();
 protected:
-    PeriodicThread (time_t period);
-    virtual void periodicActivation () {}
+    PeriodicThread(time_t period);
+    virtual void periodicActivation(){}
 private:
+    void run();
     time_t period;
 };
 

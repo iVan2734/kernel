@@ -1,30 +1,30 @@
 #include "../h/Console.hpp"
 
 #include "../h/Riscv.hpp"
-Console& Console::getInstance(){
-    static Console instance;
+_Console& _Console::getInstance(){
+    static _Console instance;
     return instance;
 }
 
-Console::Console():
-    outputDataAvailable(new Semaphore(0)),
-    inputDataAvailable(new Semaphore(0)),
-    outputSpaceAvailable(new Semaphore(BUFFER_SIZE))
+_Console::_Console():
+    outputDataAvailable(new _Semaphore(0)),
+    inputDataAvailable(new _Semaphore(0)),
+    outputSpaceAvailable(new _Semaphore(BUFFER_SIZE))
     {}
 
-void Console::putc(char c){
+void _Console::putc(char c){
     outputSpaceAvailable->wait();
     outputBuffer.append(c);
     outputDataAvailable->signal();
 }
 
-char Console::getc(){
+char _Console::getc(){
     inputDataAvailable->wait();
     return inputBuffer.take();
 }
 
 void outputThread(void*){
-    Console& console=Console::getInstance();
+    _Console& console=_Console::getInstance();
     while(1){
         console.outputDataAvailable->wait();
         while(!(*(volatile char*)CONSOLE_STATUS & CONSOLE_TX_STATUS_BIT));
@@ -33,8 +33,8 @@ void outputThread(void*){
     }
 }
 
-void Console::inputInterrupt(){
-    Console& console=Console::getInstance();
+void _Console::inputInterrupt(){
+    _Console& console=_Console::getInstance();
     while(*(volatile char*)CONSOLE_STATUS & CONSOLE_RX_STATUS_BIT){
         char data=*(volatile char*)CONSOLE_RX_DATA;
         if(!console.inputBuffer.isFull()){

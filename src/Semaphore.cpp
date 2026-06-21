@@ -2,31 +2,31 @@
 #include "../h/Riscv.hpp"
 #include "../h/Console.hpp"
 
-Semaphore::Semaphore(uint64 init):val(init){}
+_Semaphore::_Semaphore(uint64 init):val(init){}
 
-Semaphore* Semaphore::create_semaphore(uint64 init){
-    return new Semaphore(init);
+_Semaphore* _Semaphore::create_semaphore(uint64 init){
+    return new _Semaphore(init);
 }
 
-Semaphore::~Semaphore(){
+_Semaphore::~_Semaphore(){
     while(!blocked.empty()){
         Scheduler::getInstance().put(blocked.removeLast());
     }
 }
 
-void Semaphore::block(){
+void _Semaphore::block(){
     TCB* old=TCB::running;
     blocked.addLast(old);
     TCB::running=Scheduler::getInstance().get();
     TCB::contextSwitch(&old->context,&TCB::running->context);
 }
 
-void Semaphore::unblock(){
+void _Semaphore::unblock(){
     TCB *t=blocked.removeFirst();
     Scheduler::getInstance().put(t);
 }
 
-void Semaphore::wait_n(uint64 n){
+void _Semaphore::wait_n(uint64 n){
     if(val>=n){
          val-=n;
     }
@@ -36,7 +36,7 @@ void Semaphore::wait_n(uint64 n){
     }
 }
 
-void Semaphore::signal_n(uint64 n){
+void _Semaphore::signal_n(uint64 n){
     val+=n;
     while(!blocked.empty() && blocked.peekFirst()->getSemWaiting()<=val){
         TCB* t=blocked.removeFirst();
@@ -45,10 +45,10 @@ void Semaphore::signal_n(uint64 n){
     }
 }
 
-void Semaphore::wait(){
-    Semaphore::wait_n(1);
+void _Semaphore::wait(){
+    _Semaphore::wait_n(1);
 }
 
-void Semaphore::signal(){
-    Semaphore::signal_n(1);
+void _Semaphore::signal(){
+    _Semaphore::signal_n(1);
 }

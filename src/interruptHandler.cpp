@@ -33,11 +33,12 @@ extern "C" void interruptHandler(uint64* reg) {
     sem_t* id;
     uint64 n;
     uint64 init;
-    Semaphore* sem;
+    _Semaphore* sem;
+    time_t time;
 
     sepc=Riscv::r_sepc();
     sstatus=Riscv::r_sstatus();
-    scause=Riscv::r_scause();
+    scauseValue=Riscv::r_scause();
 
     if (scauseValue == 0x0000000000000009UL || scauseValue == 0x0000000000000008UL ) {
 
@@ -72,48 +73,52 @@ extern "C" void interruptHandler(uint64* reg) {
             case 0x021:
                 handle_sem=(sem_t*)a1;
                 init=a2;
-                *handle_sem=(sem_t)Semaphore::create_semaphore(init);
+                *handle_sem=(sem_t)_Semaphore::create_semaphore(init);
                 returnValue=1;
                 reg[10]=returnValue;
                 break;
             case 0x022:
                 handle_sem=(sem_t*)a1;
-                sem=(Semaphore*)handle_sem;
+                sem=(_Semaphore*)handle_sem;
                 returnValue=1;
                 delete sem;
                 reg[10]=returnValue;
                 break;
             case 0x023:
                 id=(sem_t*)a1;
-                sem=(Semaphore*)id;
+                sem=(_Semaphore*)id;
                 sem->wait();
                 break;
             case 0x024:
                 id=(sem_t*)a1;
-                sem=(Semaphore*)id;
+                sem=(_Semaphore*)id;
                 sem->signal();
                 break;
             case 0x025:
                 id=(sem_t*)a1;
                 n=a2;
-                sem=(Semaphore*)id;
+                sem=(_Semaphore*)id;
                 sem->wait_n(n);
                 break;
             case 0x026:
                 id=(sem_t*)a1;
                 n=a2;
-                sem=(Semaphore*)id;
+                sem=(_Semaphore*)id;
                 sem->signal_n(n);
                 break;
             case 0x031:
+                time=(time_t)a1;
+                TCB::time_sleep(time);
+                returnValue=1;
+                reg[10]=returnValue;
                 break;
             case 0x041:
-                returnValue=(uint64)Console::getInstance().getc();
+                returnValue=(uint64)_Console::getInstance().getc();
                 reg[10]=returnValue;
                 break;
             case 0x042:
                 char c=(char)a1;
-                Console::getInstance().putc(c);
+                _Console::getInstance().putc(c);
                 break;
         }
 		Riscv::w_sepc(sepc+4);
@@ -137,7 +142,7 @@ extern "C" void interruptHandler(uint64* reg) {
         //keyboard interrupt
         uint64 IRQ=plic_claim();
         if(IRQ==CONSOLE_IRQ){
-            Console::getInstance().inputInterrupt();
+            _Console::getInstance().inputInterrupt();
         }
         plic_complete(IRQ);
 		Riscv::w_sepc(sepc);
@@ -146,7 +151,7 @@ extern "C" void interruptHandler(uint64* reg) {
     }
     else{
         //Unexpected interrupt
-        Console::getInstance().putc('E');
+        _Console::getInstance().putc('E');
         while (1);
     }
 }

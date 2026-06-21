@@ -2,10 +2,15 @@
 #define TCB_HPP
 
 #include "../lib/hw.h"
-#include "Scheduler.hpp"
+#include "../h/MemoryAllocator.hpp"
+class Scheduler;
 
 class TCB{
 public:
+    void* operator new(size_t n){ return MemoryAllocator::getInstance().memAlloc(n); }
+    void  operator delete(void* p){ MemoryAllocator::getInstance().free(p); }
+
+
     ~TCB(){ delete[] stack; }
     using Body = void (*)(void *);
     static TCB *create_thread(Body body,void* args,bool kernelThread);
@@ -21,10 +26,11 @@ public:
     static void yield();
     static void dispatch();
     static int thread_exit();
+    static int time_sleep(time_t time);
     static TCB *running;
     static uint64 timeSliceCounter;
 private:
-    friend class Semaphore;
+    friend class _Semaphore;
     explicit TCB(Body body,void *args,bool kernelThread);
     Body body;
 

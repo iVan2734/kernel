@@ -9,9 +9,9 @@
 // outputThread needs to be blocked if the outputBuffer is empty
 // you can always add charachters to the input buffer
 
-class Console{
+class _Console{
 public:
-    static Console& getInstance();
+    static _Console& getInstance();
     void putc(char c);
     char getc();
     friend void outputThread(void*);
@@ -19,14 +19,14 @@ public:
     void inputInterrupt();
     BoundedBuffer getInputBuffer(){ return inputBuffer; }
     BoundedBuffer getOutputBuffer(){ return outputBuffer; }
-    Semaphore* getOutputDataAvailable(){ return outputDataAvailable; }
-    Semaphore* getinputDataAvailable(){ return inputDataAvailable; }
-    Semaphore* getoutputSpaceAvailable(){ return outputSpaceAvailable; }
+    _Semaphore* getOutputDataAvailable(){ return outputDataAvailable; }
+    _Semaphore* getinputDataAvailable(){ return inputDataAvailable; }
+    _Semaphore* getoutputSpaceAvailable(){ return outputSpaceAvailable; }
 private:
     static constexpr uint64 BUFFER_SIZE=256;
-    Console();
+    _Console();
     BoundedBuffer inputBuffer,outputBuffer;
-    Semaphore *outputDataAvailable,*inputDataAvailable,*outputSpaceAvailable;
+    _Semaphore *outputDataAvailable,*inputDataAvailable,*outputSpaceAvailable;
 };
 
 

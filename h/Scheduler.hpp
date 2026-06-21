@@ -2,9 +2,9 @@
 #define SCHEDULER_HPP
 
 #include "List.hpp"
+#include "PriorityQueue.hpp"
 #include "MemoryAllocator.hpp"
-
-class TCB;
+#include "../h/TCB.hpp"
 
 class Scheduler {
 public:

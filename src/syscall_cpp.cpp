@@ -1,11 +1,11 @@
-#include "../h/syscall_cpp.cpp"
-#include "../h/syscall_c.cpp"
+#include "../h/syscall_cpp.hpp"
+#include "../h/syscall_c.hpp"
 
-void* ::operator new(size_t size){
+void* operator new(size_t size){
     return mem_alloc(size);
 }
 
-void ::operator delete(void* addr){
+void operator delete(void* addr){
     mem_free(addr);
 }
 
@@ -18,12 +18,11 @@ Thread::~Thread(){}
 
 int Thread::start(){
     if(body==nullptr){
-        thread_create(&this->myHandle,threadWrapper,this);
+        return thread_create(&this->myHandle,threadWrapper,this);
     }
     else{
-        thread_create(&this->myHandle,this->body,this->arg);
+        return thread_create(&this->myHandle,this->body,this->arg);
     }
-
 }
 
 void Thread::dispatch(){
@@ -38,8 +37,6 @@ Thread::Thread(){
     this->body=nullptr;
     this->arg=nullptr;
 }
-
-virtual void Thread::run(){}
 
 void Thread::threadWrapper(void* arg){
     ((Thread*)arg)->run();

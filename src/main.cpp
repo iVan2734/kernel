@@ -5,13 +5,12 @@
 
 extern "C" void interrupt();
 
-
 void userWrapper(void*);
 
 void outputThread(void*);
 
 int main(){
-    Console& console = Console::getInstance();
+    _Console& console = _Console::getInstance();
 
     __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt));
     TCB* kernelThread=TCB::create_thread(nullptr,nullptr,1);

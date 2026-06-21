@@ -1,16 +1,16 @@
 #ifndef PRIORITYQUEUE_HPP
 #define PRIORITYQUEUE_HPP
 
+#include "../lib/hw.h"
 
 template<typename T>
 class PriorityQueue{
 public:
-    PriorityQueue():head(0),tail(0){}
+    PriorityQueue():head(0){}
 
     PriorityQueue(const PriorityQueue<T> &)=delete;
 
     PriorityQueue<T> &operator=(const PriorityQueue<T> &)=delete;
-
 
     void add(T *data) {
         Elem *elem = new Elem(data, nullptr);
@@ -25,18 +25,14 @@ public:
         else{
             Elem *prev = nullptr;
             Elem *curr = head;
-
             while (curr && sleepTime >= curr->data->getSleepingTime()) {
                 sleepTime -= curr->data->getSleepingTime();
                 prev = curr;
                 curr = curr->next;
             }
-
             elem->data->setSleepingTime(sleepTime);
-
             prev->next = elem;
             elem->next = curr;
-
             if (curr) {
                 curr->data->setSleepingTime(curr->data->getSleepingTime() - sleepTime);
             }

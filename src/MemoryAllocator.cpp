@@ -19,12 +19,10 @@ MemoryAllocator::MemoryAllocator() {
 
 void* MemoryAllocator::memAlloc(size_t size) {
     return MemoryAllocator::getInstance().firstFitAlloc(size);
-    //return MemoryAllocator::getInstance().bestFitAlloc();
 }
 
 void* MemoryAllocator::firstFitAlloc(size_t size) {
     if (size<=0) {
-        //__putc('!');
         return nullptr;
     }
     //sizeof(fragment) extra space to store fragment data
@@ -103,23 +101,6 @@ void MemoryAllocator::mergeNext(Fragment *fragment) {
             fragment->next->prev=fragment;
         }
     }
-}
-
-
-void* operator new(uint64 n){
-    return MemoryAllocator::getInstance().memAlloc(n);
-}
-
-
-void* operator new[](uint64 n){
-    return MemoryAllocator::getInstance().memAlloc(n);
-}
-
-void operator delete(void *p) noexcept {
-    MemoryAllocator::getInstance().free(p);
-}
-void operator delete[](void *p) noexcept {
-    MemoryAllocator::getInstance().free(p);
 }
 
 /*

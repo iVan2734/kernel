@@ -6,12 +6,15 @@
 #include "../lib/hw.h"
 #include "../h/TCB.hpp"
 
-class Semaphore{
+class _Semaphore{
 public:
-    Semaphore(uint64 init);
-    ~Semaphore();
+    void* operator new(size_t n)   { return MemoryAllocator::getInstance().memAlloc(n); }
+    void  operator delete(void* p) { MemoryAllocator::getInstance().free(p); }
 
-    static Semaphore* create_semaphore(uint64 init);
+    _Semaphore(uint64 init);
+    ~_Semaphore();
+
+    static _Semaphore* create_semaphore(uint64 init);
     int getVal() const { return this->val; }
 
     void signal();

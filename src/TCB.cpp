@@ -8,7 +8,7 @@ uint64 TCB::timeSliceCounter=0;
 
 TCB::TCB(Body body,void* args,bool kernelThread):
     body(body),
-    stack(body!=nullptr ? new uint64[STACK_SIZE] : nullptr),
+    stack(body!=nullptr ? (uint64*)MemoryAllocator::getInstance().memAlloc(STACK_SIZE*sizeof(uint64)): nullptr),
     context({
         body!=nullptr ? (uint64) &threadWrapper : 0,
         stack!=nullptr ? (uint64) &stack[STACK_SIZE] : 0
@@ -16,9 +16,9 @@ TCB::TCB(Body body,void* args,bool kernelThread):
     finished(false),
     args(args),
     timeSlice(DEFAULT_TIME_SLICE),
-    waiting(0),
+    semWaiting(0),
     kernelThr(kernelThread),
-	sleeping(0)
+	sleepingTime(0)
 
 {
     if (body!=nullptr) Scheduler::getInstance().put(this);
@@ -58,9 +58,10 @@ void TCB::threadWrapper(){
 }
 
 int TCB::time_sleep(time_t time){
-	TCB* sleep=TCB::running;
-	old->setSleeping(time);
-	Schudeler::getInstance().putSleep(old);
+    if (time == 0) return 0;
+	TCB* old=TCB::running;
+	old->setSleepingTime(time);
+	Scheduler::getInstance().putSleep(old);
 	TCB::running=Scheduler::getInstance().get();
 	TCB::contextSwitch(&old->context,&running->context);
 	return 0;
