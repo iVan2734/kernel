@@ -3,7 +3,6 @@
 #include "../h/Scheduler.hpp"
 #include "../h/syscall_c.hpp"
 
-#include "../h/dbg.hpp"
 
 TCB *TCB::running=nullptr;
 uint64 TCB::timeSliceCounter=0;

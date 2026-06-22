@@ -2,7 +2,6 @@
 #include "../h/TCB.hpp"
 #include "../h/syscall_c.hpp"
 #include "../h/Console.hpp"
-#include "../h/dbg.hpp"
 extern "C" void interrupt();
 
 void outputThread(void* arg);

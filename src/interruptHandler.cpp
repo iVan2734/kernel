@@ -4,7 +4,6 @@
 #include "../h/Riscv.hpp"
 #include "../h/Semaphore.hpp"
 #include "../h/Console.hpp"
-#include "../h/dbg.hpp"
 
 class _thread;
 typedef _thread* thread_t;
