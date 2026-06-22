@@ -1,0 +1,122 @@
+GAS LISTING /tmp/ccaXprSS.s 			page 1
+
+
+   1              		.file	"myTest.cpp"
+   2              		.option nopic
+   3              		.option norelax
+   4              		.attribute arch, "rv64i2p0_m2p0_a2p0"
+   5              		.attribute unaligned_access, 0
+   6              		.attribute stack_align, 16
+   7              		.text
+   8              	.Ltext0:
+   9              		.align	2
+  10              		.globl	_Z3dbgc
+  12              	_Z3dbgc:
+  13              	.LFB18:
+  14              		.file 1 "src/myTest.cpp"
+   1:src/myTest.cpp **** #include "../h/syscall_c.hpp"
+   2:src/myTest.cpp **** #include "../h/Riscv.hpp"
+   3:src/myTest.cpp **** 
+   4:src/myTest.cpp **** void dbg(char c) {
+  15              		.loc 1 4 18
+  16              		.cfi_startproc
+  17              	.LVL0:
+  18 0000 130101FF 		addi	sp,sp,-16
+  19              		.cfi_def_cfa_offset 16
+  20 0004 23348100 		sd	s0,8(sp)
+  21              		.cfi_offset 8, -8
+  22 0008 13040101 		addi	s0,sp,16
+  23              		.cfi_def_cfa 8, 0
+  24              	.L2:
+   5:src/myTest.cpp ****     while (!(*(volatile char*)CONSOLE_STATUS & (1 << 5))) ;
+  25              		.loc 1 5 5
+  26              		.loc 1 5 12
+  27              		.loc 1 5 14 is_stmt 0
+  28 000c 97070000 		ld	a5,CONSOLE_STATUS
+  28      83B70700 
+  29 0014 83C70700 		lbu	a5,0(a5)
+  30 0018 93F7F70F 		andi	a5,a5,0xff
+  31              		.loc 1 5 12
+  32 001c 93F70702 		andi	a5,a5,32
+  33 0020 E38607FE 		beqz	a5,.L2
+   6:src/myTest.cpp ****     *(volatile char*)CONSOLE_TX_DATA = c;
+  34              		.loc 1 6 5 is_stmt 1
+  35 0024 97070000 		ld	a5,CONSOLE_TX_DATA
+  35      83B70700 
+  36              		.loc 1 6 38 is_stmt 0
+  37 002c 2380A700 		sb	a0,0(a5)
+   7:src/myTest.cpp **** }
+  38              		.loc 1 7 1
+  39 0030 03348100 		ld	s0,8(sp)
+  40              		.cfi_restore 8
+  41              		.cfi_def_cfa 2, 16
+  42 0034 13010101 		addi	sp,sp,16
+  43              		.cfi_def_cfa_offset 0
+  44 0038 67800000 		jr	ra
+  45              		.cfi_endproc
+  46              	.LFE18:
+  48              	.Letext0:
+  49              		.file 2 "src/../h/../lib/hw.h"
+  50              		.file 3 "src/../h/syscall_c.hpp"
+GAS LISTING /tmp/ccaXprSS.s 			page 2
+
+
+GAS LISTING /tmp/ccaXprSS.s 			page 3
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 myTest.cpp
+     /tmp/ccaXprSS.s:12     .text:0000000000000000 _Z3dbgc
+     /tmp/ccaXprSS.s:16     .text:0000000000000000 .L0 
+     /tmp/ccaXprSS.s:18     .text:0000000000000000 .L0 
+     /tmp/ccaXprSS.s:19     .text:0000000000000004 .L0 
+     /tmp/ccaXprSS.s:21     .text:0000000000000008 .L0 
+     /tmp/ccaXprSS.s:23     .text:000000000000000c .L0 
+     /tmp/ccaXprSS.s:26     .text:000000000000000c .L0 
+     /tmp/ccaXprSS.s:27     .text:000000000000000c .L0 
+     /tmp/ccaXprSS.s:28     .text:000000000000000c .L0 
+     /tmp/ccaXprSS.s:32     .text:000000000000001c .L0 
+     /tmp/ccaXprSS.s:35     .text:0000000000000024 .L0 
+     /tmp/ccaXprSS.s:37     .text:000000000000002c .L0 
+     /tmp/ccaXprSS.s:39     .text:0000000000000030 .L0 
+     /tmp/ccaXprSS.s:40     .text:0000000000000034 .L0 
+     /tmp/ccaXprSS.s:41     .text:0000000000000034 .L0 
+     /tmp/ccaXprSS.s:43     .text:0000000000000038 .L0 
+     /tmp/ccaXprSS.s:45     .text:000000000000003c .L0 
+     /tmp/ccaXprSS.s:51     .text:000000000000003c .L0 
+     /tmp/ccaXprSS.s:28     .text:000000000000000c .L0 
+     /tmp/ccaXprSS.s:35     .text:0000000000000024 .L0 
+     /tmp/ccaXprSS.s:24     .text:000000000000000c .L2
+     /tmp/ccaXprSS.s:212    .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+     /tmp/ccaXprSS.s:426    .debug_str:000000000000002a .LASF18
+     /tmp/ccaXprSS.s:450    .debug_str:000000000000018c .LASF19
+     /tmp/ccaXprSS.s:452    .debug_str:000000000000019b .LASF20
+     /tmp/ccaXprSS.s:8      .text:0000000000000000 .Ltext0
+     /tmp/ccaXprSS.s:48     .text:000000000000003c .Letext0
+     /tmp/ccaXprSS.s:418    .debug_line:0000000000000000 .Ldebug_line0
+     /tmp/ccaXprSS.s:446    .debug_str:000000000000017a .LASF0
+     /tmp/ccaXprSS.s:442    .debug_str:000000000000015b .LASF1
+     /tmp/ccaXprSS.s:438    .debug_str:000000000000013b .LASF2
+     /tmp/ccaXprSS.s:430    .debug_str:00000000000000fc .LASF4
+     /tmp/ccaXprSS.s:440    .debug_str:0000000000000149 .LASF3
+     /tmp/ccaXprSS.s:422    .debug_str:0000000000000013 .LASF5
+     /tmp/ccaXprSS.s:420    .debug_str:0000000000000000 .LASF6
+     /tmp/ccaXprSS.s:434    .debug_str:0000000000000119 .LASF7
+     /tmp/ccaXprSS.s:424    .debug_str:000000000000001a .LASF8
+     /tmp/ccaXprSS.s:428    .debug_str:00000000000000ee .LASF9
+     /tmp/ccaXprSS.s:462    .debug_str:00000000000001f2 .LASF10
+     /tmp/ccaXprSS.s:436    .debug_str:000000000000012c .LASF11
+     /tmp/ccaXprSS.s:460    .debug_str:00000000000001e2 .LASF12
+     /tmp/ccaXprSS.s:456    .debug_str:00000000000001ca .LASF13
+     /tmp/ccaXprSS.s:444    .debug_str:000000000000016e .LASF14
+     /tmp/ccaXprSS.s:432    .debug_str:0000000000000103 .LASF15
+     /tmp/ccaXprSS.s:454    .debug_str:00000000000001b4 .LASF16
+     /tmp/ccaXprSS.s:458    .debug_str:00000000000001da .LASF21
+     /tmp/ccaXprSS.s:13     .text:0000000000000000 .LFB18
+     /tmp/ccaXprSS.s:46     .text:000000000000003c .LFE18
+     /tmp/ccaXprSS.s:448    .debug_str:0000000000000187 .LASF17
+     /tmp/ccaXprSS.s:52     .debug_info:0000000000000000 .Ldebug_info0
+
+UNDEFINED SYMBOLS
+CONSOLE_STATUS
+CONSOLE_TX_DATA
