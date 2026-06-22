@@ -12,6 +12,7 @@ extern "C" void interrupt();
 
 void userWrapper(void* arg) {
     userMain();
+    //putc('A');
 }
 
 int main(){

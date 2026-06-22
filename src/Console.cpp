@@ -38,7 +38,8 @@ void outputThread(void*){
     }
 }
 
-void _Console::inputInterrupt(){
+
+void _Console::keyboardInterrupt(){
     _Console& console=_Console::getInstance();
     while(*(volatile char*)CONSOLE_STATUS & CONSOLE_RX_STATUS_BIT){
         char data=*(volatile char*)CONSOLE_RX_DATA;

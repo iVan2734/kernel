@@ -112,6 +112,10 @@ extern "C" void interruptHandler(uint64* reg) {
             case 0x031:
                 time=(time_t)a1;
                 TCB::time_sleep(time);
+                sepc+=4;
+                //TCB::dispatch();
+                Riscv::w_sepc(sepc+4);
+                Riscv::w_sstatus(sstatus);
                 returnValue=1;
                 reg[10]=returnValue;
                 break;
@@ -145,7 +149,7 @@ extern "C" void interruptHandler(uint64* reg) {
         //keyboard interrupt
         uint64 IRQ=plic_claim();
         if(IRQ==CONSOLE_IRQ){
-            _Console::getInstance().inputInterrupt();
+            _Console::getInstance().keyboardInterrupt();
         }
         plic_complete(IRQ);
 		Riscv::w_sepc(sepc);

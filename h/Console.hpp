@@ -16,7 +16,7 @@ public:
     char getc();
     friend void outputThread(void*);
     bool isOutputEmpty() { return outputBuffer.isEmpty(); }
-    void inputInterrupt();
+    void keyboardInterrupt();
     BoundedBuffer getInputBuffer(){ return inputBuffer; }
     BoundedBuffer getOutputBuffer(){ return outputBuffer; }
     _Semaphore* getOutputDataAvailable(){ return outputDataAvailable; }
