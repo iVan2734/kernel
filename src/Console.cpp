@@ -1,5 +1,5 @@
 #include "../h/Console.hpp"
-
+#include "../h/dbg.hpp"
 #include "../h/Riscv.hpp"
 _Console& _Console::getInstance(){
     static _Console instance;

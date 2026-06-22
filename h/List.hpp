@@ -1,6 +1,8 @@
 #ifndef LIST_HPP
 #define LIST_HPP
 
+#include "../lib/hw.h"
+#include "../h/MemoryAllocator.hpp"
 
 template<typename T>
 class List{
@@ -74,6 +76,8 @@ private:
         T *data;
         Elem *next;
         Elem(T* data,Elem *next):data(data),next(next){}
+        void* operator new(size_t n)   { return MemoryAllocator::getInstance().memAlloc(n); }
+        void  operator delete(void* p) { MemoryAllocator::getInstance().free(p); }
     };
     Elem *head,*tail;
 };

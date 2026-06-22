@@ -1,5 +1,4 @@
 #include  "../h/MemoryAllocator.hpp"
-#include "../lib/console.h"
 
 
 MemoryAllocator &MemoryAllocator::getInstance() {

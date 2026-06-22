@@ -1,7 +1,7 @@
 #include "../h/Semaphore.hpp"
 #include "../h/Riscv.hpp"
 #include "../h/Console.hpp"
-
+#include "../h/dbg.hpp"
 _Semaphore::_Semaphore(uint64 init):val(init){}
 
 _Semaphore* _Semaphore::create_semaphore(uint64 init){

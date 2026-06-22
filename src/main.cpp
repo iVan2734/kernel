@@ -2,31 +2,34 @@
 #include "../h/TCB.hpp"
 #include "../h/syscall_c.hpp"
 #include "../h/Console.hpp"
-
+#include "../h/dbg.hpp"
 extern "C" void interrupt();
 
-void userWrapper(void*);
+void outputThread(void* arg);
 
-void outputThread(void*);
+void userMain(void* a) {
+    char c=getc();
+    putc(c);
+    putc('\n');
+}
+
 
 int main(){
-    _Console& console = _Console::getInstance();
-
     __asm__ volatile("csrw stvec, %0" : : "r" (&interrupt));
+
+    //_Console& console = _Console::getInstance();
+    //Scheduler& scheduler = Scheduler::getInstance();
+
     TCB* kernelThread=TCB::create_thread(nullptr,nullptr,1);
     TCB::running=kernelThread;
     TCB::create_thread(&outputThread,nullptr,1);
-    TCB* userThread=TCB::create_thread(&userWrapper,nullptr,0);
-
-    while (!userThread->isFinished()) {
-        thread_dispatch();
+    TCB::create_thread(&userMain,nullptr,0);
+    while (TCB::running->getCounter() > 0) {
+        TCB::yield();
     }
-    while (!console.isOutputEmpty()) {
-        thread_dispatch();
-    }
+    while (!_Console::getInstance().isOutputEmpty()) TCB::yield();
 
-    //0x5555 on address 0x100000 to end program
-    *((volatile uint32*)0x100000)=0x5555;
+    *(volatile uint32*)0x100000 = 0x5555;
     return 0;
 }
 

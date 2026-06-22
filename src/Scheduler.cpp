@@ -22,11 +22,11 @@ void Scheduler::putSleep(TCB* t){
 }
 
 void Scheduler::updateSleep(){
-    Scheduler& s = getInstance();
-    if (s.sleep.empty()) return;
-    time_t cur = s.sleep.peek()->getSleepingTime();
-    if (cur > 0) s.sleep.peek()->setSleepingTime(cur - 1);
-    while (TCB* t = s.sleep.remove()) {
+    Scheduler& scheduler=getInstance();
+    if (scheduler.sleep.empty()) return;
+    time_t cur = scheduler.sleep.peek()->getSleepingTime();
+    if (cur > 0) scheduler.sleep.peek()->setSleepingTime(cur - 1);
+    while (TCB* t = scheduler.sleep.remove()) {
         Scheduler::put(t);
     }
 }
