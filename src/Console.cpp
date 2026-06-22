@@ -1,5 +1,9 @@
 #include "../h/Console.hpp"
 #include "../h/Riscv.hpp"
+#include "../h/syscall_c.hpp"
+
+void dbg(char c);
+
 _Console& _Console::getInstance(){
     static _Console instance;
     return instance;
@@ -8,7 +12,7 @@ _Console& _Console::getInstance(){
 _Console::_Console():
     outputDataAvailable(new _Semaphore(0)),
     inputDataAvailable(new _Semaphore(0)),
-    outputSpaceAvailable(new _Semaphore(BUFFER_SIZE))
+    outputSpaceAvailable(new _Semaphore(BUFFER_SIZE-1))
     {}
 
 void _Console::putc(char c){
@@ -23,11 +27,13 @@ char _Console::getc(){
 }
 
 void outputThread(void*){
-    _Console& console=_Console::getInstance();
+    _Console& console = _Console::getInstance();
     while(1){
         console.outputDataAvailable->wait();
-        while(!(*(volatile char*)CONSOLE_STATUS & CONSOLE_TX_STATUS_BIT));
-        *(volatile char*)CONSOLE_TX_DATA=console.outputBuffer.take();
+        while(!(*(volatile char*)CONSOLE_STATUS & CONSOLE_TX_STATUS_BIT)) {
+            thread_dispatch();
+        }
+        *(volatile char*)CONSOLE_TX_DATA = console.outputBuffer.take();
         console.outputSpaceAvailable->signal();
     }
 }

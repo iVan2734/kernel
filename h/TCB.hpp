@@ -19,6 +19,7 @@ public:
 	time_t getSleepingTime() const {return sleepingTime;}
     void setSleepingTime(uint64 sleepingTime) {this->sleepingTime=sleepingTime;}
     uint64 getCounter()const {return counter;}
+    uint64 getMyId() const {return myId;}
     static void yield();
     static void dispatch();
     static int thread_exit();
@@ -44,6 +45,8 @@ private:
     bool kernelThr;
 	time_t sleepingTime;
     static uint64 counter;
+    static uint64 idCounter;
+    uint64 myId;
 
     static void threadWrapper();
     static void contextSwitch(Context *oldContext,Context *newContext);

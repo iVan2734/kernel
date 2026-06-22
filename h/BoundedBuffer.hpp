@@ -5,7 +5,9 @@
 
 class BoundedBuffer{
 public:
-    BoundedBuffer():count(0),head(0),tail(0){}
+    BoundedBuffer():head(0),tail(0) {
+        this->count=0;
+    }
     void append(char);
     char take();
     bool isEmpty() const { return count==0; }

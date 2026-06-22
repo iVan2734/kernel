@@ -1,6 +1,9 @@
 #include "../h/Semaphore.hpp"
 #include "../h/Riscv.hpp"
 #include "../h/Console.hpp"
+
+void dbg(char c);
+
 _Semaphore::_Semaphore(uint64 init):val(init){}
 
 _Semaphore* _Semaphore::create_semaphore(uint64 init){
@@ -17,7 +20,7 @@ void _Semaphore::block(){
     TCB* old=TCB::running;
     blocked.addLast(old);
     TCB::running=Scheduler::getInstance().get();
-    TCB::contextSwitch(&old->context,&TCB::running->context);
+    if (old != TCB::running) TCB::contextSwitch(&old->context, &TCB::running->context);
 }
 
 void _Semaphore::unblock(){

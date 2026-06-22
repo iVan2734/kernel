@@ -11,6 +11,7 @@ typedef _thread* thread_t;
 class _sem;
 typedef _sem* sem_t;
 
+void dbg(char c);
 
 extern "C" void interruptHandler(uint64* reg) {
     uint64 code = reg[10];
@@ -67,7 +68,10 @@ extern "C" void interruptHandler(uint64* reg) {
                 break;
             case 0x013:
                 TCB::timeSliceCounter=0;
+                sepc+=4;
                 TCB::dispatch();
+                Riscv::w_sepc(sepc+4);
+                Riscv::w_sstatus(sstatus);
                 break;
             case 0x021:
                 handle_sem=(sem_t*)a1;
