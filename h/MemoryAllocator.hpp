@@ -5,8 +5,8 @@
 
 struct Fragment {
     size_t numOfBlocks;
-    struct Fragment* next;
-    struct Fragment* prev;
+    Fragment* next;
+    Fragment* prev;
     uint8 free;
 };
 

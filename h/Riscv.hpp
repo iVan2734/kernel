@@ -7,8 +7,6 @@ class Riscv{
 public:
 
     //push(pop) x3..x31
-    static void pushRegisters();
-    static void popRegisters();
 
     //read helpers
     static uint64 r_scause();

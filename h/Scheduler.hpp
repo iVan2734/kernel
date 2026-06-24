@@ -3,7 +3,6 @@
 
 #include "List.hpp"
 #include "PriorityQueue.hpp"
-#include "MemoryAllocator.hpp"
 #include "../h/TCB.hpp"
 
 class Scheduler {

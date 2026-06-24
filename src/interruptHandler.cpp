@@ -114,8 +114,6 @@ extern "C" void interruptHandler(uint64* reg) {
             case 0x031:
                 time=(time_t)a1;
                 TCB::time_sleep(time);
-                //sepc+=4;
-                //TCB::dispatch();
                 Riscv::w_sepc(sepc+4);
                 Riscv::w_sstatus(sstatus);
                 returnValue=1;
@@ -159,7 +157,6 @@ extern "C" void interruptHandler(uint64* reg) {
 
     }
     else{
-        putc('!');
         //Unexpected interrupt
     }
 }

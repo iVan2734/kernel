@@ -57,7 +57,6 @@ void* MemoryAllocator::firstFitAlloc(size_t size) {
             }
         }
     }
-    //__putc('F');
     return nullptr;
 }
 
@@ -65,20 +64,17 @@ int MemoryAllocator::free(void *fragment) {
     for (Fragment* curr=head; curr; curr=curr->next) {
         if ((size_t)curr+sizeof(Fragment)==(size_t)fragment) {
             if (curr->free) {
-                //__putc('!');
                 return -1;
             }
             else {
                 curr->free=1;
                 mergeNext(curr);
                 mergePrev(curr);
-                //__putc('W');
-                //__putc('W');
                 return 0;
             }
         }
     }
-    // is should return the code of the error but I currently dont know what is the code and there might be many more undefined behaviors
+    // it should return the code of the error but I currently dont know what is the code and there might be many more undefined behaviors
     return -1;
 }
 
@@ -104,7 +100,7 @@ void MemoryAllocator::mergeNext(Fragment *fragment) {
 
 /*
 void memoryAllocatorTest() {
-__putc('S');
+    __putc('S');
     void* a=mem_alloc(64);
     if(a) {
         __putc('1');

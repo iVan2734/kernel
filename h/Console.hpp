@@ -4,10 +4,8 @@
 #include "../lib/hw.h"
 #include "../h/BoundedBuffer.hpp"
 #include "../h/Semaphore.hpp"
-#include "../h/MemoryAllocator.hpp"
 
 // outputThread needs to be blocked if the outputBuffer is empty
-// you can always add charachters to the input buffer
 
 class _Console{
 public:

@@ -2,7 +2,6 @@
 #include "../h/Riscv.hpp"
 #include "../h/syscall_c.hpp"
 
-void dbg(char c);
 
 _Console& _Console::getInstance(){
     static _Console instance;

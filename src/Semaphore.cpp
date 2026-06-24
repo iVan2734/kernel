@@ -2,7 +2,6 @@
 #include "../h/Riscv.hpp"
 #include "../h/Console.hpp"
 
-void dbg(char c);
 
 _Semaphore::_Semaphore(uint64 init):val(init){}
 
