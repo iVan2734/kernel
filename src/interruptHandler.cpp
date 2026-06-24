@@ -13,6 +13,8 @@ typedef _sem* sem_t;
 
 void dbg(char c);
 
+#include "../h/syscall_c.hpp"
+
 extern "C" void interruptHandler(uint64* reg) {
     uint64 code = reg[10];
     uint64 a1   = reg[11];
@@ -112,7 +114,7 @@ extern "C" void interruptHandler(uint64* reg) {
             case 0x031:
                 time=(time_t)a1;
                 TCB::time_sleep(time);
-                sepc+=4;
+                //sepc+=4;
                 //TCB::dispatch();
                 Riscv::w_sepc(sepc+4);
                 Riscv::w_sstatus(sstatus);
@@ -157,6 +159,7 @@ extern "C" void interruptHandler(uint64* reg) {
 
     }
     else{
+        putc('!');
         //Unexpected interrupt
     }
 }
