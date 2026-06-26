@@ -1,6 +1,6 @@
 #include "../h/Scheduler.hpp"
 
-
+#include "../h/syscall_c.hpp"
 Scheduler& Scheduler::getInstance(){
     static Scheduler instance;
     return instance;
@@ -9,12 +9,12 @@ Scheduler& Scheduler::getInstance(){
 Scheduler::Scheduler(){}
 
 void Scheduler::put(TCB* t){
-    if(t!=nullptr) Scheduler::getInstance().ready.addFirst(t);
+    if(t != nullptr) Scheduler::getInstance().ready.addFirst(t);
 }
 
 TCB* Scheduler::get(){
-    return Scheduler::getInstance().ready.removeLast();
-
+    TCB* t = Scheduler::getInstance().ready.removeLast();
+    return t;
 }
 
 void Scheduler::putSleep(TCB* t){

@@ -3,9 +3,9 @@
 #include "../h/Console.hpp"
 
 
-_Semaphore::_Semaphore(uint64 init):val(init){}
+_Semaphore::_Semaphore(int init):val(init){}
 
-_Semaphore* _Semaphore::create_semaphore(uint64 init){
+_Semaphore* _Semaphore::create_semaphore(int init){
     return new _Semaphore(init);
 }
 
@@ -27,9 +27,9 @@ void _Semaphore::unblock(){
     Scheduler::getInstance().put(t);
 }
 
-void _Semaphore::wait_n(uint64 n){
+void _Semaphore::wait_n(int n){
     if(val>=n){
-         val-=n;
+        val-=n;
     }
     else {
         TCB::running->setSemWaiting(n);
@@ -37,7 +37,7 @@ void _Semaphore::wait_n(uint64 n){
     }
 }
 
-void _Semaphore::signal_n(uint64 n){
+void _Semaphore::signal_n(int n){
     val+=n;
     while(!blocked.empty() && blocked.peekFirst()->getSemWaiting()<=val){
         TCB* t=blocked.removeFirst();

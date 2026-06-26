@@ -3,7 +3,7 @@
 
 
 #include "buffer.hpp"
-
+#include "../h/TCB.hpp"
 static sem_t waitForAll;
 
 struct thread_data {
@@ -30,7 +30,6 @@ static void producerKeyboard(void *arg) {
 
     threadEnd = 1;
     data->buffer->put('!');
-
     sem_signal(data->wait);
 }
 
@@ -46,7 +45,6 @@ static void producer(void *arg) {
             thread_dispatch();
         }
     }
-
     sem_signal(data->wait);
 }
 
@@ -73,7 +71,6 @@ static void consumer(void *arg) {
         int key = data->buffer->get();
         putc(key);
     }
-
     sem_signal(data->wait);
 }
 
@@ -130,9 +127,7 @@ void producerConsumer_C_API() {
     for (int i = 0; i <= threadNum; i++) {
         sem_wait(waitForAll);
     }
-
     sem_close(waitForAll);
 
     delete buffer;
-
 }

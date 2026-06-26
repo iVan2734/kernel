@@ -18,7 +18,6 @@ Buffer::~Buffer() {
     }
     putc('!');
     putc('\n');
-
     mem_free(buffer);
     sem_close(itemAvailable);
     sem_close(spaceAvailable);

@@ -15,8 +15,6 @@ public:
     friend void outputThread(void*);
     bool isOutputEmpty() { return outputBuffer.isEmpty(); }
     void keyboardInterrupt();
-    BoundedBuffer getInputBuffer(){ return inputBuffer; }
-    BoundedBuffer getOutputBuffer(){ return outputBuffer; }
     _Semaphore* getOutputDataAvailable(){ return outputDataAvailable; }
     _Semaphore* getinputDataAvailable(){ return inputDataAvailable; }
     _Semaphore* getoutputSpaceAvailable(){ return outputSpaceAvailable; }
