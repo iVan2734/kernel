@@ -11,8 +11,10 @@ typedef _thread* thread_t;
 class _sem;
 typedef _sem* sem_t;
 
+void dbg(char c);
+
 #include "../h/syscall_c.hpp"
-#include "../test/printing.hpp"
+
 extern "C" void interruptHandler(uint64* reg) {
     uint64 code = reg[10];
     uint64 a1   = reg[11];
@@ -20,7 +22,7 @@ extern "C" void interruptHandler(uint64* reg) {
     uint64 a3   = reg[13];
 
     uint64 scauseValue;
-    volatile uint64 sepc;
+	volatile uint64 sepc;
 	volatile uint64 sstatus;
 
     void* addr;
@@ -30,10 +32,12 @@ extern "C" void interruptHandler(uint64* reg) {
     thread_t* handle_thread;
     TCB::Body start_routine;
     sem_t* handle_sem;
-    int n;
+    sem_t* id;
+    uint64 n;
+    uint64 init;
     _Semaphore* sem;
     time_t time;
-    int init;
+
     sepc=Riscv::r_sepc();
     sstatus=Riscv::r_sstatus();
     scauseValue=Riscv::r_scause();
@@ -61,15 +65,12 @@ extern "C" void interruptHandler(uint64* reg) {
                 reg[10]=returnValue;
                 break;
             case 0x012:
-                TCB::running->setFinished(true);
+                TCB::running->setFinished(1);
                 TCB::dispatch();
-                return;
+                break;
             case 0x013:
                 TCB::timeSliceCounter=0;
-                sepc+=4;
                 TCB::dispatch();
-                Riscv::w_sepc(sepc);
-                Riscv::w_sstatus(sstatus);
                 break;
             case 0x021:
                 handle_sem=(sem_t*)a1;
@@ -86,25 +87,25 @@ extern "C" void interruptHandler(uint64* reg) {
                 reg[10]=returnValue;
                 break;
             case 0x023:
-                handle_sem=(sem_t*)a1;
-                sem=(_Semaphore*)handle_sem;
+                id=(sem_t*)a1;
+                sem=(_Semaphore*)id;
                 sem->wait();
                 break;
             case 0x024:
-                handle_sem=(sem_t*)a1;
-                sem=(_Semaphore*)handle_sem;
+                id=(sem_t*)a1;
+                sem=(_Semaphore*)id;
                 sem->signal();
                 break;
             case 0x025:
-                handle_sem=(sem_t*)a1;
+                id=(sem_t*)a1;
                 n=a2;
-                sem=(_Semaphore*)handle_sem;
+                sem=(_Semaphore*)id;
                 sem->wait_n(n);
                 break;
             case 0x026:
-                handle_sem=(sem_t*)a1;
+                id=(sem_t*)a1;
                 n=a2;
-                sem=(_Semaphore*)handle_sem;
+                sem=(_Semaphore*)id;
                 sem->signal_n(n);
                 break;
             case 0x031:
@@ -114,7 +115,7 @@ extern "C" void interruptHandler(uint64* reg) {
                 Riscv::w_sstatus(sstatus);
                 returnValue=1;
                 reg[10]=returnValue;
-                break;
+                return;
             case 0x041:
                 returnValue=(uint64)_Console::getInstance().getc();
                 reg[10]=returnValue;
@@ -135,10 +136,13 @@ extern "C" void interruptHandler(uint64* reg) {
         Scheduler::getInstance().updateSleep();
         if(TCB::timeSliceCounter >= TCB::running->getTimeSlice()){
             TCB::timeSliceCounter=0;
+            volatile uint64 sepc=Riscv::r_sepc();
+            volatile uint64 sstatus=Riscv::r_sstatus();
+
             TCB::dispatch();
+            Riscv::w_sepc(sepc);
+            Riscv::w_sstatus(sstatus);
         }
-		Riscv::w_sepc(sepc);
-        Riscv::w_sstatus(sstatus);
 
     }
     else if(scauseValue == 0x8000000000000009UL){
@@ -150,9 +154,11 @@ extern "C" void interruptHandler(uint64* reg) {
         plic_complete(IRQ);
 		Riscv::w_sepc(sepc);
         Riscv::w_sstatus(sstatus);
+
     }
     else{
-        //Unexpected
+        //_Console::getInstance().putc('0'+Riscv::r_scause());
+        //Unexpected interrupt
     }
 }
 

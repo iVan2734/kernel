@@ -2,7 +2,7 @@
 #include "../h/Riscv.hpp"
 #include "../h/Scheduler.hpp"
 #include "../h/syscall_c.hpp"
-#include "../test/printing.hpp"
+
 TCB *TCB::running=nullptr;
 uint64 TCB::timeSliceCounter=0;
 int TCB::counter=0;
@@ -13,7 +13,7 @@ TCB::TCB(Body body,void* args,bool kernelThread):
     stack(body!=nullptr ? (uint64*)MemoryAllocator::getInstance().memAlloc(STACK_SIZE): nullptr),
     context({
         body!=nullptr ? (uint64) &threadWrapper : 0,
-        stack!=nullptr ? (uint64)stack+STACK_SIZE : 0
+        stack!=nullptr ? (uint64)stack + STACK_SIZE : 0
     }),
     finished(false),
     args(args),
@@ -37,9 +37,7 @@ TCB *TCB::create_thread(Body body,void *args,bool kernelThread) {
 void TCB::dispatch(){
     TCB *old=running;
     if(!old->isFinished()){ Scheduler::getInstance().put(old); }
-    else{
-        if (!old->kernelThr) counter--;
-    }
+    else{if (!old->kernelThr) counter--;}
     running=Scheduler::getInstance().get();
     if (old!=running) TCB::contextSwitch(&old->context,&running->context);
 }
@@ -59,6 +57,9 @@ int TCB::thread_exit(){
 }
 
 void TCB::threadWrapper(){
+    if (!running->kernelThr) {
+        __asm__ volatile("csrc sstatus, %0" : : "r"(Riscv::BitMaskSstatus::SSTATUS_SPP));
+    }
     Riscv::popSppSpie();
     running->body(running->args);
     running->setFinished(true);
