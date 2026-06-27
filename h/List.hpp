@@ -8,17 +8,13 @@ template<typename T>
 class List{
 public:
     List():head(0),tail(0){}
-
     List(const List<T> &)=delete;
-
     List<T> &operator=(const List<T> &)=delete;
-
     void addFirst(T *data){
         Elem *elem=new Elem(data,head);
         head=elem;
         if(!tail) tail=head;
     }
-
     void addLast(T *data){
         Elem *elem=new Elem(data,nullptr);
         if(tail){

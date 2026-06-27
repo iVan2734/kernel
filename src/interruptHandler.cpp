@@ -11,19 +11,15 @@ typedef _thread* thread_t;
 class _sem;
 typedef _sem* sem_t;
 
-void dbg(char c);
-
-#include "../h/syscall_c.hpp"
-
 extern "C" void interruptHandler(uint64* reg) {
-    uint64 code = reg[10];
-    uint64 a1   = reg[11];
-    uint64 a2   = reg[12];
-    uint64 a3   = reg[13];
+    uint64 code=reg[10]; //a0
+    uint64 a1=reg[11];
+    uint64 a2=reg[12];
+    uint64 a3=reg[13];
 
-    uint64 scauseValue;
-	volatile uint64 sepc;
-	volatile uint64 sstatus;
+    uint64 scauseValue=Riscv::r_scause();
+	volatile uint64 sepc=Riscv::r_sepc();
+	volatile uint64 sstatus=Riscv::r_sstatus();
 
     void* addr;
     size_t size;
@@ -32,18 +28,12 @@ extern "C" void interruptHandler(uint64* reg) {
     thread_t* handle_thread;
     TCB::Body start_routine;
     sem_t* handle_sem;
-    sem_t* id;
     uint64 n;
     uint64 init;
     _Semaphore* sem;
     time_t time;
 
-    sepc=Riscv::r_sepc();
-    sstatus=Riscv::r_sstatus();
-    scauseValue=Riscv::r_scause();
-
     if (scauseValue == 0x0000000000000009UL || scauseValue == 0x0000000000000008UL ) {
-
         switch (code) {
             case 0x01:
                 size=a1;
@@ -52,8 +42,7 @@ extern "C" void interruptHandler(uint64* reg) {
                 break;
             case 0x02:
                 addr=(void*)a1;
-                returnValue=MemoryAllocator::getInstance().free(addr);
-                reg[10]=returnValue;
+                reg[10]=MemoryAllocator::getInstance().free(addr);
                 break;
             case 0x011:
 				handle_thread=(thread_t*)a1;
@@ -65,55 +54,79 @@ extern "C" void interruptHandler(uint64* reg) {
                 reg[10]=returnValue;
                 break;
             case 0x012:
+                reg[10]=0;
                 TCB::running->setFinished(1);
                 TCB::dispatch();
                 break;
             case 0x013:
+                reg[10]=0;
                 TCB::timeSliceCounter=0;
                 TCB::dispatch();
                 break;
             case 0x021:
                 handle_sem=(sem_t*)a1;
+                if (handle_sem==nullptr) {
+                    reg[10]=-1;
+                    break;
+                }
                 init=a2;
                 *handle_sem=(sem_t)_Semaphore::create_semaphore(init);
-                returnValue=1;
+                if(*handle_sem==nullptr) returnValue=-1;
+                else returnValue=0;
                 reg[10]=returnValue;
                 break;
             case 0x022:
-                handle_sem=(sem_t*)a1;
-                sem=(_Semaphore*)handle_sem;
-                returnValue=1;
+                sem=(_Semaphore*)a1;
+                if (sem==nullptr){
+                    reg[10]=-1;
+                    break;
+                }
                 delete sem;
-                reg[10]=returnValue;
+                reg[10]=0;
                 break;
             case 0x023:
-                id=(sem_t*)a1;
-                sem=(_Semaphore*)id;
+                sem=(_Semaphore*)a1;
+                if(sem==nullptr){
+                    reg[10]=-1;
+                    break;
+                }
                 sem->wait();
+                reg[10]=0;
                 break;
             case 0x024:
-                id=(sem_t*)a1;
-                sem=(_Semaphore*)id;
+                sem=(_Semaphore*)a1;
+                if (sem==nullptr) {
+                    reg[10]=-1;
+                    break;
+                }
                 sem->signal();
+                reg[10]=0;
                 break;
             case 0x025:
-                id=(sem_t*)a1;
+                sem=(_Semaphore*)a1;
+                if(sem==nullptr) {
+                    reg[10]=-1;
+                    break;
+                }
                 n=a2;
-                sem=(_Semaphore*)id;
                 sem->wait_n(n);
+                reg[10]=0;
                 break;
             case 0x026:
-                id=(sem_t*)a1;
+                sem=(_Semaphore*)a1;
+                if (sem==nullptr) {
+                    reg[10]=-1;
+                    break;
+                }
                 n=a2;
-                sem=(_Semaphore*)id;
                 sem->signal_n(n);
+                reg[10]=0;
                 break;
             case 0x031:
-                time=(time_t)a1;
-                TCB::time_sleep(time);
+                time=a1;
+                returnValue=TCB::time_sleep(time);
                 Riscv::w_sepc(sepc+4);
                 Riscv::w_sstatus(sstatus);
-                returnValue=1;
                 reg[10]=returnValue;
                 return;
             case 0x041:

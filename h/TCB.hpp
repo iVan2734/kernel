@@ -11,7 +11,6 @@ public:
     using Body = void (*)(void *);
     static TCB *create_thread(Body body,void* args,bool kernelThread);
     uint64 getTimeSlice() const{ return timeSlice;}
-
     bool isFinished() const {return finished;}
     void setFinished(bool finished) {this->finished=finished;}
     int getSemWaiting() const {return semWaiting;}
@@ -28,13 +27,10 @@ public:
     static TCB *running;
     static uint64 timeSliceCounter;
     static int counter;
-
-
 private:
     friend class _Semaphore;
     explicit TCB(Body body,void *args,bool kernelThread);
     Body body;
-
     struct Context{
         uint64 ra;
         uint64 sp;
@@ -43,7 +39,6 @@ private:
     Context context;
     bool finished;
     void  *args;
-
     uint64 timeSlice;
     int semWaiting;
     bool kernelThr;
@@ -52,7 +47,6 @@ private:
     uint64 myId;
     static void threadWrapper();
     static void contextSwitch(Context *oldContext,Context *newContext);
-
     static uint64 constexpr STACK_SIZE=DEFAULT_STACK_SIZE;
     static uint64 constexpr TIME_SLICE=DEFAULT_TIME_SLICE;
 };

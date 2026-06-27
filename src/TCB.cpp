@@ -37,7 +37,9 @@ TCB *TCB::create_thread(Body body,void *args,bool kernelThread) {
 void TCB::dispatch(){
     TCB *old=running;
     if(!old->isFinished()){ Scheduler::getInstance().put(old); }
-    else{if (!old->kernelThr) counter--;}
+    else {
+        if (!old->kernelThr) counter--;
+    }
     running=Scheduler::getInstance().get();
     if (old!=running) TCB::contextSwitch(&old->context,&running->context);
 }
@@ -67,6 +69,7 @@ void TCB::threadWrapper(){
 }
 
 int TCB::time_sleep(time_t time){
+    if (time < 0) return -1;
     if (time == 0) return 0;
 	TCB* old=TCB::running;
 	old->setSleepingTime(time);
